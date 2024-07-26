@@ -283,9 +283,10 @@ def worker():
                         Path(shared.path_manager.model_paths["modelfile_path"])
                         / gen_data["base_model_name"]
                     ),
-                    "loras": ",".join([f"<{lora[0]}:{lora[1]}>" for lora in loras]),
+                    "loras": [['', f"{lora[1]} - {lora[0]}"] for lora in loras],
                     "start_step": start_step,
                     "denoise": denoise,
+                    "clip_skip": gen_data["clip_skip"],
                     "software": "RuinedFooocus",
                 }
                 metadata = PngInfo()

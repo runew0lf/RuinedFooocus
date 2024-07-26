@@ -39,9 +39,11 @@ class Civit:
             with open(filename, 'rb') as f:
                 for chunk in iter(lambda: f.read(blksize), b""):
                     hash_sha256.update(chunk)
+            f.close()
             return hash_sha256.hexdigest().upper()
-        except:
+        except Exception as e:
             print(f"model_sha256(): Failed reading {filename}")
+            print(f"Error: {e}")
             return None
 
 #    def get_models_by_hash(self, hash):

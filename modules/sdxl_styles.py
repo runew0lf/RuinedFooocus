@@ -107,6 +107,8 @@ def apply_style(style, prompt, negative_prompt, lora_keywords):
 
     if bHyperprompt:
         prompt = build_dynamic_prompt.one_button_superprompt(prompt=prompt)
+        temp_style_prompt = prompt
+        print("Hypered prompt: " + prompt)
 
     while index < len(style):
         if style[index].startswith("Artify"):
