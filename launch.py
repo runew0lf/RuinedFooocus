@@ -1,6 +1,7 @@
 import os
 import sys
 import version
+import torch
 import warnings
 from pathlib import Path
 import ssl
@@ -98,7 +99,13 @@ def prepare_environment(offline=False):
         if "TORCH_PLATFORM" in os.environ:
             torch_platform = os.environ["TORCH_PLATFORM"]
         else:
-            torch_platform = torchruntime.platform_detection.get_torch_platform(gpus)
+            if sys.platform == "win32" and hasattr(torch.version, 'hip') and torch.version.hip is not None:
+                # ROCm detection for Windows systems
+                # This prevents falling back to DirectML when ROCm-enabled PyTorch is installed.
+                # We use 'rocm' as a generic identifier.
+                torch_platform = 'rocm'
+            else:
+                torch_platform = torchruntime.platform_detection.get_torch_platform(gpus)
         os_platform = platform.system()
 
         # Some platform checks
