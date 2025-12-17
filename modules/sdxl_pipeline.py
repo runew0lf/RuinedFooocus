@@ -131,6 +131,9 @@ class pipeline:
             "clip_aura": "clip_aura.safetensors",
             "clip_g": "clip_g.safetensors",
             "clip_gemma": "gemma_2_2b_fp16.safetensors",
+            "clip_gemma3": "gemma_3_4b_it_bf16.safetensors",
+            "clip_gemma3_gguf": "gemma-3-4b-it-Q5_K_M.gguf",
+            "clip_jina": "jina-clip-v2.safetensors",
             "clip_l": "clip_l.safetensors",
             "clip_llama": "llama_q2.gguf",
             "clip_mistral3": "mistral_3_small_flux2_fp8.safetensors",
@@ -157,13 +160,15 @@ class pipeline:
         }
         return settings.default_settings.get(shortname, defaults[shortname] if shortname in defaults else None)
 
-    known_models = ["AuraFlow", "BaseModel", "CosmosPredict2", "Flux", "Flux2", "HiDream", "Lumina2", "PixArt", "QwenImage", "SD3", "SDXL", "ZImage"]
+    known_models = ["AuraFlow", "BaseModel", "CosmosPredict2", "Flux", "Flux2", "HiDream", "Lumina2", "NewBieImage", "PixArt", "QwenImage", "SD3", "SDXL", "ZImage"]
     def get_clip_and_vae(self, unet):
         unet_type = unet.model.__class__.__name__
 
         # Some detective work...
         if unet_type == "Lumina2" and unet.model_state_dict().get('diffusion_model.cap_embedder.1.weight', []).shape[0] == 3840:
             unet_type = "ZImage"
+        elif unet_type == "Lumina2" and unet.model_state_dict().get('diffusion_model.clip_text_pooled_proj.0.weight', None) is not None:
+            unet_type = "NewBieImage"
 
         if unet_type not in self.known_models:
             unet_type = "SDXL" # Use SDXL as default
@@ -218,6 +223,16 @@ class pipeline:
                 "clip_names": [self.get_clip_name("clip_gemma")],
                 "vae_name": self.get_vae_name("vae_lumina2"),
                 "model_sampling": ('AuraFlow', settings.default_settings.get("lumina2_shift", 3.0))
+            },
+            "NewBieImage": {
+                "latent": "SD3",
+                "clip_type": comfy.sd.CLIPType.NEWBIE,
+                "clip_names": [
+                    self.get_clip_name("clip_gemma3"),
+                    self.get_clip_name("clip_jina"),
+                ],
+                "vae_name": self.get_vae_name("vae_flux"),
+                "model_sampling": ('AuraFlow', settings.default_settings.get("newbieimage_shift", 6.0))
             },
             "PixArt": {
                 "clip_type": comfy.sd.CLIPType.PIXART,

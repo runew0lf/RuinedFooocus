@@ -46,11 +46,25 @@ from modules.launch_util import (
 git_repos = [
     {
         "name": "ComfyUI",
-        "path": "ComfyUI",
-        "url": "https://github.com/comfyanonymous/ComfyUI",
-        "hash": "d7a0aef65033bf0fe56e521577a44fac1830b8b3",
-        "add_path": "ComfyUI",
+        "path": "ComfyUI_woct0rdho",
+        "url": "https://github.com/woct0rdho/ComfyUI",
+        "hash": "53c3585bb4d618e1d74be52ee6cee2e695fafed1",
+        "add_path": "ComfyUI_woct0rdho",
     },
+#    {
+#        "name": "ComfyUI",
+#        "path": "ComfyUI",
+#        "url": "https://github.com/E-Anlia/ComfyUI-NewBie",
+#        "hash": "29655ed6fa86551abbf1835511764ff151dbbbc5",
+#        "add_path": "ComfyUI",
+#    },
+#    {
+#        "name": "ComfyUI",
+#        "path": "ComfyUI",
+#        "url": "https://github.com/comfyanonymous/ComfyUI",
+#        "hash": "f8321eb57b29a4b34cecd27d5d6365adf5e6e601",
+#        "add_path": "ComfyUI",
+#    },
 #    {
 #        "name": "Calcuis-GGUF",
 #        "path": "calcuis_gguf",
@@ -62,7 +76,7 @@ git_repos = [
         "name": "ComfyUI-GGUF",
         "path": "comfyui_gguf",
         "url": "https://github.com/city96/ComfyUI-GGUF",
-        "hash": "d3e14efda6bb891de0406d2debffcb07e88d4231",
+        "hash": "01f8845bf30d89fff293c7bd50187bc59d9d53ea",
         "add_path": "",
     },
 ]

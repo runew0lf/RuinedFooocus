@@ -738,8 +738,9 @@ def prompt_switch_per_step(prompt, steps):
                         )
                         prompt_per_step[i] = prompt_to_append
 
-        except ValueError:
+        except ValueError as e:
             print("There seems to be a mistake in the prompt.")
+            print(e)
             break
 
 #    print("All prompts generated after applying logic:")
