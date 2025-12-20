@@ -39,10 +39,15 @@
         "path": "path_clip",
         "filename": "gemma-3-4b-it-Q5_K_M.gguf"
     },
-    "clip/jina-clip-v2.safetensors": {
-        "url": "https://huggingface.co/jinaai/jina-clip-v2/resolve/main/model.safetensors",
+    "clip/gemma_3_4b_it_bf16.gguf": {
+        "url": "https://huggingface.co/woctordho/comfyui-gemma-3-4b-it/resolve/main/gemma_3_4b_it_bf16.safetensors",
         "path": "path_clip",
-        "filename": "jina-clip-v2.safetensors"
+        "filename": "gemma_3_4b_it_bf16.gguf"
+    },
+    "clip/jina_clip_v2_bf16.safetensors": {
+        "url": "https://huggingface.co/woctordho/comfyui-jina-clip-v2/resolve/main/jina_clip_v2_bf16.safetensors",
+        "path": "path_clip",
+        "filename": "jina_clip_v2_bf16.safetensors"
     },
     "clip/llama_q2.gguf": {
         "url": "https://huggingface.co/calcuis/hidream-gguf/resolve/main/llama-q2_k.gguf",

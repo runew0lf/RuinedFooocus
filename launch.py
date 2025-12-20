@@ -46,25 +46,11 @@ from modules.launch_util import (
 git_repos = [
     {
         "name": "ComfyUI",
-        "path": "ComfyUI_woct0rdho",
-        "url": "https://github.com/woct0rdho/ComfyUI",
-        "hash": "53c3585bb4d618e1d74be52ee6cee2e695fafed1",
-        "add_path": "ComfyUI_woct0rdho",
+        "path": "ComfyUI",
+        "url": "https://github.com/comfyanonymous/ComfyUI",
+        "hash": "fb478f679a2998c4f2e955bcb895cc4c55f119a4",
+        "add_path": "ComfyUI",
     },
-#    {
-#        "name": "ComfyUI",
-#        "path": "ComfyUI",
-#        "url": "https://github.com/E-Anlia/ComfyUI-NewBie",
-#        "hash": "29655ed6fa86551abbf1835511764ff151dbbbc5",
-#        "add_path": "ComfyUI",
-#    },
-#    {
-#        "name": "ComfyUI",
-#        "path": "ComfyUI",
-#        "url": "https://github.com/comfyanonymous/ComfyUI",
-#        "hash": "f8321eb57b29a4b34cecd27d5d6365adf5e6e601",
-#        "add_path": "ComfyUI",
-#    },
 #    {
 #        "name": "Calcuis-GGUF",
 #        "path": "calcuis_gguf",

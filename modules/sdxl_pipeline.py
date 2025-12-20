@@ -132,8 +132,7 @@ class pipeline:
             "clip_g": "clip_g.safetensors",
             "clip_gemma": "gemma_2_2b_fp16.safetensors",
             "clip_gemma3": "gemma_3_4b_it_bf16.safetensors",
-            "clip_gemma3_gguf": "gemma-3-4b-it-Q5_K_M.gguf",
-            "clip_jina": "jina-clip-v2.safetensors",
+            "clip_jina": "jina_clip_v2_bf16.safetensors",
             "clip_l": "clip_l.safetensors",
             "clip_llama": "llama_q2.gguf",
             "clip_mistral3": "mistral_3_small_flux2_fp8.safetensors",
@@ -528,7 +527,9 @@ class pipeline:
 
     def textencode(self, id, text, clip_skip):
         update = False
-        text = re.sub("<[^>]*>", "", text) # Don't encode <lora> and things like that
+        # Don't encode <lora> and things like that
+        for pat in [r"<lora:[^>]*>", r"<facerestore>"]:
+            text = re.sub(pat, "", text)
         text = text.strip(", ")
         hash = f"{text} {clip_skip}"
         if hash != self.conditions[id]["text"]:

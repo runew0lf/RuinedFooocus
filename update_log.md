@@ -1,3 +1,6 @@
+###
+* NewBie Image support
+
 ### 25.11.29
 * Z-Image Turbo support
 * Changed to ComfuUI-GGUF
