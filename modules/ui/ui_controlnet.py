@@ -117,7 +117,7 @@ def add_controlnet_tab(main_view, inpaint_view, prompt, image_number, run_event)
         ]
 
         @cn_selection.change(
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[cn_selection],
             outputs=[cn_name] + cn_outputs + cn_sliders
         )
@@ -132,7 +132,7 @@ def add_controlnet_tab(main_view, inpaint_view, prompt, image_number, run_event)
                 )
 
         @cn_type.change(
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[cn_type],
             outputs=cn_sliders,
         )
@@ -157,7 +157,7 @@ def add_controlnet_tab(main_view, inpaint_view, prompt, image_number, run_event)
             return result
 
         @cn_save_btn.click(
-            show_api=False,
+            api_visibility='undocumented',
             inputs=cn_outputs + cn_sliders,
             outputs=[cn_selection],
         )
@@ -206,7 +206,7 @@ def add_controlnet_tab(main_view, inpaint_view, prompt, image_number, run_event)
         add_ctrl("inpaint_toggle", inpaint_toggle)
 
         @inpaint_toggle.change(
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[inpaint_toggle, main_view],
             outputs=[main_view, inpaint_view]
         )

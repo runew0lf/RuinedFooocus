@@ -131,6 +131,7 @@ function generate_shortcut(){
     }
   });
 }
+generate_shortcut();
 """
 
 from shared import state

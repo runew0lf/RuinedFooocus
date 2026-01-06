@@ -794,7 +794,7 @@ def ui_onebutton(prompt, run_event):
                         return gr.update()
 
         obp_preset_save.click(act_obp_preset_save,
-                    show_api=False,
+                    api_visibility='undocumented',
                     inputs=obp_outputs,
                     outputs=[OBP_preset],
                 )
@@ -815,7 +815,7 @@ def ui_onebutton(prompt, run_event):
                         maingroup: gr.update(visible=False),
                     }
         OBP_preset.change(obppreset_changed,
-                show_api=False,
+                api_visibility='undocumented',
                 inputs=[OBP_preset],
                 outputs=[obp_preset_name] + [maingroup]
             )
@@ -852,7 +852,7 @@ def ui_onebutton(prompt, run_event):
                     antistring: gr.update(value=selected_opb_preset["antistring"]),
                 }
         OBP_preset.change(OBPPreset_changed_update_custom,
-                show_api=False,
+                api_visibility='undocumented',
                 inputs=[OBP_preset],
                 outputs=[insanitylevel] + 
                 [subject] + 
@@ -882,7 +882,7 @@ def ui_onebutton(prompt, run_event):
 
         subject.change(
             fn=subjectsvalue,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[subject],
             outputs=[chosengender]
         )
@@ -896,7 +896,7 @@ def ui_onebutton(prompt, run_event):
 
         subject.change(
             fn=subjectsvalueforsubtypeobject,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[subject],
             outputs=[chosensubjectsubtypeobject]
         )
@@ -910,7 +910,7 @@ def ui_onebutton(prompt, run_event):
 
         subject.change(
             fn=subjectsvalueforsubtypeobject,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[subject],
             outputs=[chosensubjectsubtypehumanoid]
         )
@@ -924,7 +924,7 @@ def ui_onebutton(prompt, run_event):
 
         subject.change(
             fn=subjectsvalueforsubtypeconcept,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[subject],
             outputs=[chosensubjectsubtypeconcept]
         )
@@ -940,14 +940,14 @@ def ui_onebutton(prompt, run_event):
 
         assumedirectcontrol.change(
             fn=assumedirectcontrolflip,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[assumedirectcontrol],
             outputs=[instant_obp, random_button, add_random_button],
         )
 
         instant_obp.click(
             fn=instant_gen_prompt,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[
                 insanitylevel,
                 subject,
@@ -974,7 +974,7 @@ def ui_onebutton(prompt, run_event):
         )
         random_button.click(
             fn=gen_prompt,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[
                 insanitylevel,
                 subject,
@@ -1000,7 +1000,7 @@ def ui_onebutton(prompt, run_event):
         )
         add_random_button.click(
             fn=add_prompt,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[
                 prompt,
                 insanitylevel,

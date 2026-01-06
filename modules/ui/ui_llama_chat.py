@@ -139,10 +139,8 @@ def create_chat():
                     label="",
                     show_label=False,
                     height=600,
-                    type="messages",
                     allow_tags=["think", "thinking"],
-                    show_copy_all_button=True,
-                    allow_file_downloads=True,
+                    buttons=['share', 'copy_all'],
                     value=_llama_select_assistant(default_bot)["chatstart"],
                 )
                 llama_msg = gr.Textbox(
@@ -208,25 +206,25 @@ def create_chat():
 
         llama_msg.submit(
             fn=llama_get_text,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[llama_msg],
             outputs=[llama_msg, llama_sent]
         ).then(
             fn=llama_respond,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[llama_sent, llama_system, llama_embed, llama_chat],
             outputs=[llama_chat]
         )
 
         llama_assistants.select(
             fn=llama_select_assistant,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[llama_assistants],
             outputs=[llama_chat, llama_msg, llama_avatar, llama_system, llama_embed]
         )
         llama_reload.click(
             fn=gr_llama_get_assistants,
-            show_api=False,
+            api_visibility='undocumented',
             outputs=[llama_assistants]
         )
 

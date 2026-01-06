@@ -303,7 +303,7 @@ def create_settings():
 
         save_btn.click(
             fn=save_clicked,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=state["setting_obj"],
         )
 

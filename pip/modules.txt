@@ -5,7 +5,7 @@ pyyaml==6.0.2
 tqdm==4.66.6
 psutil==6.1.0
 pytorch_lightning==1.9.4
-gradio==5.46.1
+gradio==6.2.0
 gradio[mcp]
 diffusers==0.32.1
 imageio-ffmpeg==0.5.1
@@ -25,8 +25,8 @@ diskcache==5.6.3
 txtai==8.5.0
 onnxruntime==1.20.1
 onnx==1.17.0
-pydantic==2.11.4
-pydantic_core==2.33.2
+pydantic==2.12.5
+pydantic-core==2.41.5
 timm==1.0.15
 transformers==4.57.0
 tokenizers==0.22.1

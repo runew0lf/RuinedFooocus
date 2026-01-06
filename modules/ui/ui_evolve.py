@@ -111,7 +111,7 @@ def add_evolve_tab(prompt, image_number, run_event):
         for i in range(1, 10):
             evolve_btn[i].click(
                 evolve,
-                show_api=False,
+                api_visibility='undocumented',
                 inputs=[
                     evolve_btn[i],
                     evolve_mode,

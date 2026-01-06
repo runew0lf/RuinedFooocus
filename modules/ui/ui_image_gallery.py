@@ -44,29 +44,29 @@ def create_image_gallery():
         # Event handlers
         update_btn.click(
             fn=browser.update_images,
-            show_api=False,
+            api_visibility='undocumented',
             outputs=[gallery, ib_page, status_output],
         )
         ib_page.change(
             fn=browser.load_images,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[ib_page],
             outputs=[gallery, ib_range],
         )
         gallery.select(
             fn=browser.get_image_metadata,
-            show_api=False,
+            api_visibility='undocumented',
             outputs=[metadata_output],
         )
         search_btn.click(
             fn=browser.search_metadata,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[search_input],
             outputs=[gallery, ib_page, status_output],
         )
         search_input.submit(
             fn=browser.search_metadata,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[search_input],
             outputs=[gallery, ib_page, status_output],
         )

@@ -22,7 +22,7 @@ def add_llama_tab(prompt):
 
     llama_btn.click(
         run_llama_run,
-        show_api=False,
+        api_visibility='undocumented',
         inputs=[llama_select, prompt],
         outputs=[prompt]
     )

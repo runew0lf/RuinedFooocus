@@ -143,10 +143,7 @@ def launch_app(args):
     main_tabs = gr.TabbedInterface(
         [shared.gradio_root, app_image_browser, app_llama_chat, app_settings],
         [t("Main"), t("Image browser"), t("Chat bots"), t("Settings")],
-        theme=theme,
         title="RuinedFooocus " + version.version,
-        css=modules.html.css,
-        js=modules.html.scripts,
         analytics_enabled=False,
     )
 
@@ -160,7 +157,10 @@ def launch_app(args):
             if isinstance(args.auth, str) and "/" in args.auth
             else None
         ),
+        theme=theme,
         favicon_path=favicon_path,
+        css=modules.html.css,
+        js=modules.html.scripts,
         allowed_paths=["html", "/", path_manager.model_paths["temp_outputs_path"]]
         + settings.get("archive_folders", []),
         enable_monitoring=False,
@@ -310,7 +310,7 @@ metadata_json = gr.Json()
 
 shared.wildcards = get_wildcard_files()
 
-shared.gradio_root = gr.Blocks().queue()
+shared.gradio_root = gr.Blocks()
 
 with shared.gradio_root as block:
     block.load()
@@ -321,7 +321,7 @@ with shared.gradio_root as block:
         return shared.state["last_config"]
     cfg_timestamp = gr.Textbox(visible='hidden', value=get_cfg_timestamp())
     cfg_timer = gr.Timer(value=5)
-    cfg_timer.tick(fn=get_cfg_timestamp, show_api=False, outputs=[cfg_timestamp])
+    cfg_timer.tick(fn=get_cfg_timestamp, api_visibility='undocumented', outputs=[cfg_timestamp])
 
     with gr.Row():
         with gr.Column(scale=5):
@@ -331,9 +331,7 @@ with shared.gradio_root as block:
                 height=680,
                 type="filepath",
                 visible=True,
-                show_label=False,
-                show_fullscreen_button=True,
-                show_download_button=True,
+                buttons=['download', 'share', 'fullscreen'],
             )
             add_ctrl("main_view", main_view)
             inpaint_view = gr.ImageEditor(
@@ -341,8 +339,7 @@ with shared.gradio_root as block:
                 type="numpy",
                 visible='hidden',
                 show_label=False,
-                show_fullscreen_button=True,
-                show_download_button=True,
+                buttons=['download', 'share', 'fullscreen'],
                 layers=False,
                 interactive=False,
                 transforms=(),
@@ -367,12 +364,11 @@ with shared.gradio_root as block:
                 preview=False,
                 interactive=False,
                 visible=True,
-                show_download_button=False,
-                show_fullscreen_button=False,
+                buttons=['download', 'share', 'fullscreen'],
             )
 
             @gallery.select(
-                show_api=False,
+                api_visibility='undocumented',
                 inputs=[gallery],
                 outputs=[main_view, metadata_json],
                 show_progress="hidden",
@@ -401,19 +397,24 @@ with shared.gradio_root as block:
                                 elem_classes="type_row",
                                 lines=5,
                                 value=settings["prompt"],
-                                scale=4,
+                                scale=5,
                             )
                             add_ctrl("prompt", prompt)
 
-                            spellcheck = gr.Dropdown(
-                                label="Wildcards",
-                                visible='hidden',
-                                choices=[],
-                                value="",
-                                scale=1,
-                            )
+                with gr.Column(scale=1, min_width=0):
+                    run_button = gr.Button(value=t("Generate"), elem_id="generate")
+                    stop_button = gr.Button(
+                        value=t("Stop"), interactive=False, visible='hidden'
+                    )
+                    spellcheck = gr.Dropdown(
+                        label="Wildcards",
+                        visible='hidden',
+                        choices=[],
+                        value="",
+                        scale=1,
+                    )
 
-                    @prompt.input(show_api=False, inputs=prompt, outputs=spellcheck)
+                    @prompt.input(api_visibility='undocumented', inputs=prompt, outputs=spellcheck)
                     def checkforwildcards(text):
                         test = find_unclosed_markers(text)
                         if test is not None:
@@ -432,20 +433,15 @@ with shared.gradio_root as block:
                                 spellcheck: gr.update(interactive=False, visible='hidden')
                             }
 
-                    @spellcheck.select(show_api=False, inputs=[prompt, spellcheck], outputs=prompt)
+                    @spellcheck.select(api_visibility='undocumented', inputs=[prompt, spellcheck], outputs=prompt)
                     def select_spellcheck(text, selection):
                         last_idx = text.rindex("__")
                         newtext = f"{text[:last_idx]}__{selection}__"
                         return {prompt: gr.update(value=newtext)}
 
-                with gr.Column(scale=1, min_width=0):
-                    run_button = gr.Button(value=t("Generate"), elem_id="generate")
-                    stop_button = gr.Button(
-                        value=t("Stop"), interactive=False, visible='hidden'
-                    )
 
                     @main_view.upload(
-                        show_api=False,
+                        api_visibility='undocumented',
                         inputs=[main_view, prompt],
                         outputs=[prompt, gallery]
                     )
@@ -478,7 +474,7 @@ with shared.gradio_root as block:
                             rows=[3],
                             object_fit="contain",
                             visible=True,
-                            show_download_button=False,
+                            buttons=['download', 'share', 'fullscreen'],
                             min_width=60,
                             selected_index=None,
                             value=path_manager.get_presets(),
@@ -565,7 +561,7 @@ with shared.gradio_root as block:
                 ]
 
                 @perf_save.click(
-                    show_api=False,
+                    api_visibility='undocumented',
                     inputs=performance_outputs,
                     outputs=[performance_selection],
                 )
@@ -637,7 +633,7 @@ with shared.gradio_root as block:
                     )
 
                     @ratio_save.click(
-                        show_api=False,
+                        api_visibility='undocumented',
                         inputs=[ratio_name, custom_width, custom_height],
                         outputs=[aspect_ratios_selection],
                     )
@@ -701,7 +697,7 @@ with shared.gradio_root as block:
                 add_ctrl("seed", image_seed)
 
                 @style_button.click(
-                    show_api=False,
+                    api_visibility='undocumented',
                     inputs=[prompt, negative_prompt, style_selection],
                     outputs=[prompt, negative_prompt, style_selection],
                 )
@@ -712,7 +708,7 @@ with shared.gradio_root as block:
                     return prompt_style, negative_style, []
 
                 @seed_random.change(
-                    show_api=False,
+                    api_visibility='undocumented',
                     inputs=[seed_random],
                     outputs=[image_seed]
                 )
@@ -751,7 +747,7 @@ with shared.gradio_root as block:
                             rows=[3],
                             object_fit="contain",
                             visible=True,
-                            show_download_button=False,
+                            buttons=None,
                             min_width=60,
                             value=list(
                                 map(
@@ -768,12 +764,12 @@ with shared.gradio_root as block:
                     add_ctrl("base_model_name", base_model)
 
                     @modelfilter.input(
-                        show_api=False,
+                        api_visibility='undocumented',
                         inputs=modelfilter,
                         outputs=[model_gallery]
                     )
                     @modelfilter.submit(
-                        show_api=False,
+                        api_visibility='undocumented',
                         inputs=modelfilter,
                         outputs=[model_gallery]
                     )
@@ -807,7 +803,7 @@ with shared.gradio_root as block:
 
                     model_gallery.select(
                         fn=update_model_select,
-                        show_api=False,
+                        api_visibility='undocumented',
                         outputs=[model_current, base_model]
                     )
 
@@ -830,7 +826,7 @@ with shared.gradio_root as block:
                             columns=[2],
                             rows=[3],
                             object_fit="contain",
-                            show_download_button=False,
+                            buttons=None,
                             min_width=60,
                             value=list(
                                 map(
@@ -873,7 +869,7 @@ with shared.gradio_root as block:
                             rows=[3],
                             object_fit="contain",
                             visible=True,
-                            show_download_button=False,
+                            buttons=None,
                             min_width=60,
                             value=default_active,
                         )
@@ -904,12 +900,12 @@ with shared.gradio_root as block:
 
                 # LoRA
                 @lorafilter.input(
-                    show_api=False,
+                    api_visibility='undocumented',
                     inputs=[lorafilter, lora_active_gallery],
                     outputs=[lora_gallery]
                 )
                 @lorafilter.submit(
-                    show_api=False,
+                    api_visibility='undocumented',
                     inputs=[lorafilter, lora_active_gallery],
                     outputs=[lora_gallery]
                 )
@@ -1053,29 +1049,29 @@ with shared.gradio_root as block:
 
                 lora_weight_slider.release(
                     fn=lora_weight_slider_update,
-                    show_api=False,
+                    api_visibility='undocumented',
                     inputs=[lora_active_gallery, lora_weight_slider],
                     outputs=[lora_active_gallery],
                 )
                 lora_add_btn.click(
                     fn=gallery_toggle,
-                    show_api=False,
+                    api_visibility='undocumented',
                     outputs=[lora_add, lora_active],
                 )
                 lora_cancel_btn.click(
                     fn=gallery_toggle,
-                    show_api=False,
+                    api_visibility='undocumented',
                     outputs=[lora_active, lora_add],
                 )
                 lora_del_btn.click(
                     fn=lora_delete,
-                        show_api=False,
+                    api_visibility='undocumented',
                     inputs=[lora_active_gallery, lorafilter],
                     outputs=[lora_gallery, lora_active_gallery, lora_keywords],
                 )
                 lora_gallery.select(
                     fn=lora_select,
-                    show_api=False,
+                    api_visibility='undocumented',
                     inputs=[lora_active_gallery, lorafilter],
                     outputs=[
                         lora_add,
@@ -1087,7 +1083,7 @@ with shared.gradio_root as block:
                 )
                 lora_active_gallery.select(
                     fn=lora_active_select,
-                    show_api=False,
+                    api_visibility='undocumented',
                     inputs=[lora_active_gallery],
                     outputs=[lora_active, lora_active_gallery, lora_weight_slider],
                 )
@@ -1100,7 +1096,7 @@ with shared.gradio_root as block:
                     )
 
             @model_refresh.click(
-                show_api=False,
+                api_visibility='undocumented',
                 inputs=[lora_active_gallery],
                 outputs=[
                     modelfilter,
@@ -1157,7 +1153,7 @@ with shared.gradio_root as block:
             )
 
             @performance_selection.change(
-                show_api=False,
+                api_visibility='undocumented',
                 inputs=[performance_selection],
                 outputs=[perf_name] + performance_outputs,
             )
@@ -1172,7 +1168,7 @@ with shared.gradio_root as block:
                     ] * len(performance_outputs)
 
             @performance_selection.change(
-                show_api=False,
+                api_visibility='undocumented',
                 inputs=[performance_selection],
                 outputs=[custom_steps]
                 + [cfg]
@@ -1200,7 +1196,7 @@ with shared.gradio_root as block:
                 }
 
             @aspect_ratios_selection.change(
-                show_api=False,
+                api_visibility='undocumented',
                 inputs=[aspect_ratios_selection],
                 outputs=[ratio_name, custom_width, custom_height, ratio_save],
             )
@@ -1225,16 +1221,16 @@ with shared.gradio_root as block:
 
         run_event.change(
             fn=refresh_seed,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[seed_random, image_seed],
             outputs=image_seed
         ).then(
             fn=activate,
-            show_api=False,
+            api_visibility='undocumented',
             outputs=[inpaint_view]
         ).then(
             fn=generate_clicked,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=state["ctrls_obj"],
             outputs=[
                 run_button,
@@ -1252,13 +1248,13 @@ with shared.gradio_root as block:
         def poke(number):
             return number + 1
 
-        run_button.click(fn=poke, show_api=False, inputs=run_event, outputs=run_event)
+        run_button.click(fn=poke, api_visibility='undocumented', inputs=run_event, outputs=run_event)
 
         def stop_clicked():
             worker.interrupt_ruined_processing = True
             shared.state["interrupted"] = False
 
-        stop_button.click(fn=stop_clicked, show_api=False, queue=False)
+        stop_button.click(fn=stop_clicked, api_visibility='undocumented', queue=False)
 
         def update_cfg():
             # Update ui components
@@ -1276,7 +1272,7 @@ with shared.gradio_root as block:
                 cfg_timestamp: gr.update(value=shared.state["last_config"]),
             }
         # If cfg_timestamp has a new value, trigger an update
-        cfg_timestamp.change(fn=update_cfg, show_api=False, outputs=[cfg_timestamp] + state["cfg_items_obj"])
+        cfg_timestamp.change(fn=update_cfg, api_visibility='undocumented', outputs=[cfg_timestamp] + state["cfg_items_obj"])
 
         # Preset functions
         def preset_select(preset_gallery, evt: gr.SelectData):
@@ -1353,7 +1349,7 @@ with shared.gradio_root as block:
 
         preset_image.clear(
             fn=preset_unselect,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[
                 performance_selection,
                 aspect_ratios_selection,
@@ -1380,7 +1376,7 @@ with shared.gradio_root as block:
         )
         preset_image.upload(
             fn=preset_image_upload,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[
                 preset_image,
             ],
@@ -1406,7 +1402,7 @@ with shared.gradio_root as block:
         )
         preset_gallery.select(
             fn=preset_select,
-            show_api=False,
+            api_visibility='undocumented',
             inputs=[preset_gallery],
             outputs=[
                 preset_image,
