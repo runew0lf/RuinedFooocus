@@ -139,8 +139,9 @@ def create_chat():
                     label="",
                     show_label=False,
                     height=600,
+                    resizable=True,
                     allow_tags=["think", "thinking"],
-                    buttons=['share', 'copy_all'],
+                    buttons=['copy_all'],
                     value=_llama_select_assistant(default_bot)["chatstart"],
                 )
                 llama_msg = gr.Textbox(

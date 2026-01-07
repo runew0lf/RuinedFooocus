@@ -203,9 +203,18 @@ class pipeline:
         chat = [{"role": "system", "content": system_prompt + tool_prompt}]
         history_len = settings.default_settings.get("llm_chat_history", 7) # Keep the some of the last messages in the discussion.
         history_len = -history_len if len(h) > history_len else -len(h)
+
+        def clean_content(text):
+            return re.sub('!\\[Image\\]\\([^(]*\\)', '', text) # Remove Image-markdown from LLM input
         for idx in range(history_len, 0):
-            c = h[idx].copy()
-            c['content'] = re.sub('!\\[Image\\]\\([^(]*\\)', '', c['content']) # Remove Image-markdown from LLM input
+            c = json.loads(json.dumps(h[idx])) # Thread safe Deep copy
+            if isinstance(c['content'], str):
+                c['content'] = clean_content(c['content'])
+            else: 
+                try:
+                    c['content'][0]['text'] = clean_content(c['content'][0]['text'])
+                except Exception as e:
+                    print(f"LLM: ({e}): {c}")
             chat.append(c)
 
         print(f"Thinking...")
