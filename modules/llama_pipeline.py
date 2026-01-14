@@ -55,7 +55,7 @@ def run_llama(system_file, prompt):
 
                 ret = llama.llm.handle_completions(
                     {
-                        "max_tokens": 4096,
+                        "max_tokens": settings.default_settings.get("llm_hp_maxtokens", 256),
                         "prompt": system_prompt + "\n\n" + prompt,
                     }
                 )

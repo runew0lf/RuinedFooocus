@@ -209,6 +209,8 @@ def create_settings():
                 add_setting("llm_chat_history", llm_chat_history)
                 enable_llm_tools = gr.Checkbox(label=t("Enable image generation"), value=settings.default_settings.get("enable_llm_tools", False))
                 add_setting("enable_llm_tools", enable_llm_tools)
+                llm_hp_max_tokens = gr.Number(label="max_tokens (Hyperprompting/Llamas)", interactive=True, placeholder=256, value=settings.default_settings.get("llm_hp_max_tokens", None), minimum=0, step=1)
+                add_setting("llm_hp_max_tokens", llm_hp_max_tokens)
 
                 gr.Markdown(t("# Other"))
                 interrogator = gr.Dropdown(label=t("Default Interrogator"), interactive=True, choices=list(looks.keys()), value=settings.default_settings.get("interrogator", None),)
