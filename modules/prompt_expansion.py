@@ -73,16 +73,20 @@ class FooocusExpansion:
         current_token_length = int(tokenized_kwargs.data["input_ids"].shape[1])
         max_token_length = 75 * int(math.ceil(float(current_token_length) / 75.0))
         max_new_tokens = max_token_length - current_token_length
-        features = self.model.generate(
-            **tokenized_kwargs,
-            top_k=100,
-            max_new_tokens=max_new_tokens,
-            do_sample=True,
-            logits_processor=LogitsProcessorList([self.logits_processor])
-        )
+        try:
+            features = self.model.generate(
+                **tokenized_kwargs,
+                top_k=100,
+                max_new_tokens=max_new_tokens,
+                do_sample=True,
+                logits_processor=LogitsProcessorList([self.logits_processor])
+            )
 
-        response = self.tokenizer.batch_decode(features, skip_special_tokens=True)
-        result = safe_str(response[0])
+            response = self.tokenizer.batch_decode(features, skip_special_tokens=True)
+            result = safe_str(response[0])
+        except Exception as e:
+            print(f"Error during prompt expansion: {e}")
+            result = prompt
         return result
 
     def logits_processor(self, input_ids, scores):
