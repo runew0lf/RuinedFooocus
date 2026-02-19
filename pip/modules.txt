@@ -5,7 +5,7 @@ pyyaml==6.0.2
 tqdm==4.66.6
 psutil==6.1.0
 pytorch_lightning==1.9.4
-gradio==6.5.1
+gradio==6.6.0
 gradio[mcp]
 diffusers==0.32.1
 imageio-ffmpeg==0.5.1
