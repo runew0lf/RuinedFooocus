@@ -328,7 +328,7 @@ class pipeline:
                         unet = GGUFModelPatcher.clone(unet)
                         unet.patch_on_device = True
                     elif filename.endswith(".gguf"):
-                        sd = load_gguf_sd(filename)
+                        sd = load_gguf_sd(filename)[0]
                         unet = comfy.sd.load_diffusion_model_state_dict(
                             sd, model_options={"custom_operations": self.ggml_ops}
                         )
