@@ -181,7 +181,7 @@ def update_clicked():
         main_view: gr.update(visible=True, value="html/init_image.png"),
         inpaint_view: gr.update(
             visible='hidden',
-            interactive=False,
+            interactive=True,
         ),
         hint_text: gr.update(visible=True, value=modules.hints.get_hint()),
     }
@@ -335,7 +335,7 @@ with shared.gradio_root as block:
                 show_label=False,
                 buttons=['download', 'share', 'fullscreen'],
                 layers=False,
-                interactive=False,
+                interactive=True,
                 transforms=(),
                 brush=gr.Brush(colors=["#000000"], color_mode="fixed"),
             )
@@ -1212,18 +1212,11 @@ with shared.gradio_root as block:
                     ratio_save: gr.update(visible='hidden'),
                 }
 
-        def activate(): # UGLY workaround for https://github.com/gradio-app/gradio/issues/7586
-            return gr.update(interactive=True)
-
         run_event.change(
             fn=refresh_seed,
             api_visibility='undocumented',
             inputs=[seed_random, image_seed],
             outputs=image_seed
-        ).then(
-            fn=activate,
-            api_visibility='undocumented',
-            outputs=[inpaint_view]
         ).then(
             fn=generate_clicked,
             api_visibility='undocumented',
