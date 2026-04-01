@@ -137,7 +137,8 @@ class pipeline:
             "clip_llama": "llama_q2.gguf",
             "clip_mistral3": "mistral_3_small_flux2_fp8.safetensors",
             "clip_qwen25": "qwen_2.5_vl_7b_edit-q2_k.gguf",
-            "clip_qwen3": "Qwen3-4B-Q4_K_M.gguf",
+            "clip_qwen3_4b": "Qwen3-4B-Q4_K_M.gguf",
+            "clip_qwen3_8b": "Qwen3-8B-Q8_0.gguf",
             "clip_qwen3_06b": "qwen_3_06b_base.safetensors",
             "clip_oldt5": "t5xxl_old_fp32-q4_0.gguf",
             "clip_t5": "t5-v1_1-xxl-encoder-Q3_K_S.gguf",
@@ -160,7 +161,7 @@ class pipeline:
         }
         return settings.default_settings.get(shortname, defaults[shortname] if shortname in defaults else None)
 
-    known_models = ["Anima", "AuraFlow", "BaseModel", "CosmosPredict2", "Flux", "Flux2", "HiDream", "Lumina2", "NewBieImage", "PixArt", "QwenImage", "SD3", "SDXL", "ZImage"]
+    known_models = ["Anima", "AuraFlow", "BaseModel", "CosmosPredict2", "Flux", "Flux2", "Flux2Klein4B", "Flux2Klein9B", "HiDream", "Lumina2", "NewBieImage", "PixArt", "QwenImage", "SD3", "SDXL", "ZImage"]
     def get_clip_and_vae(self, unet):
         unet_type = unet.model.__class__.__name__
 
@@ -169,6 +170,16 @@ class pipeline:
             unet_type = "ZImage"
         elif unet_type == "Lumina2" and unet.model_state_dict().get('diffusion_model.clip_text_pooled_proj.0.weight', None) is not None:
             unet_type = "NewBieImage"
+        elif unet_type == "Flux2":
+            if unet.model_state_dict().get('diffusion_model.single_blocks.47.linear1.weight', None) is not None:
+                # Flux2 Dev
+                unet_type = "Flux2"
+            elif unet.model_state_dict().get('diffusion_model.single_blocks.23.linear1.weight', None) is not None:
+                # Flux2 Klein 9B
+                unet_type = "Flux2Klein9B"
+            elif unet.model_state_dict().get('diffusion_model.single_blocks.19.linear1.weight', None) is not None:
+                # Flux2 Klein 4B
+                unet_type = "Flux2Klein4B"
 
         if unet_type not in self.known_models:
             unet_type = "SDXL" # Use SDXL as default
@@ -208,8 +219,20 @@ class pipeline:
             },
             "Flux2": {
                 "latent": "FLUX2",
-                "clip_type": comfy.sd.CLIPType.STABLE_DIFFUSION, # ???
+                "clip_type": comfy.sd.CLIPType.FLUX2,
                 "clip_names": [self.get_clip_name("clip_mistral3")],
+                "vae_name": self.get_vae_name("vae_flux2")
+            },
+            "Flux2Klein4B": {
+                "latent": "FLUX2",
+                "clip_type": comfy.sd.CLIPType.FLUX2,
+                "clip_names": [self.get_clip_name("clip_qwen3_4b")],
+                "vae_name": self.get_vae_name("vae_flux2")
+            },
+            "Flux2Klein9B": {
+                "latent": "FLUX2",
+                "clip_type": comfy.sd.CLIPType.FLUX2,
+                "clip_names": [self.get_clip_name("clip_qwen3_8b")],
                 "vae_name": self.get_vae_name("vae_flux2")
             },
             "HiDream": {
@@ -273,7 +296,7 @@ class pipeline:
             "ZImage": {
                 "latent": "SD3",
                 "clip_type": comfy.sd.CLIPType.LUMINA2,
-                "clip_names": [self.get_clip_name("clip_qwen3")],
+                "clip_names": [self.get_clip_name("clip_qwen3_4b")],
                 "vae_name": self.get_vae_name("vae_lumina2"),
                 "model_sampling": ('AuraFlow', settings.default_settings.get("lumina2_shift", 3.0))
             },
