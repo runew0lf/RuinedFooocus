@@ -222,31 +222,33 @@ def create_settings():
 
             with gr.Column():
                 gr.Markdown(t("# Clip"))
-                clip_aura = gr.Dropdown(label="clip_aura", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_aura", None),)
+                clip_aura = gr.Dropdown(label="clip_aura (AuraFlow)", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_aura", None),)
                 add_setting("clip_aura", clip_aura)
-                clip_g = gr.Dropdown(label="clip_g", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_g", None),)
+                clip_g = gr.Dropdown(label="clip_g (HiDream, SD3, SDXL)", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_g", None),)
                 add_setting("clip_g", clip_g)
+                clip_jina = gr.Dropdown(label="clip_jina (NewBieImage)", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_jina", None),)
+                add_setting("clip_jina", clip_jina)
                 clip_gemma = gr.Dropdown(label="clip_gemma", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_gemma", None),)
                 add_setting("clip_gemma", clip_gemma)
-                clip_l = gr.Dropdown(label="clip_l", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_l", None),)
+                clip_l = gr.Dropdown(label="clip_l (SD1.5, Flux, HiDream, SD3, SDXL)", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_l", None),)
                 add_setting("clip_l", clip_l)
-                clip_llama = gr.Dropdown(label="clip_llama", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_llama", None),)
+                clip_llama = gr.Dropdown(label="clip_llama (HiDream)", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_llama", None),)
                 add_setting("clip_llama", clip_llama)
                 clip_llava = gr.Dropdown(label="clip_llava", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_llava", None),)
                 add_setting("clip_llava", clip_llava)
-                clip_mistral3 = gr.Dropdown(label="clip_mistral3", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_mistral3", None),)
+                clip_mistral3 = gr.Dropdown(label="clip_mistral3 (Flux2)", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_mistral3", None),)
                 add_setting("clip_mistral3", clip_mistral3)
-                clip_qwen25 = gr.Dropdown(label="clip_qwen25", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_qwen25", None),)
+                clip_qwen25 = gr.Dropdown(label="clip_qwen25 (QwenImage)", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_qwen25", None),)
                 add_setting("clip_qwen25", clip_qwen25)
-                clip_qwen3_4b = gr.Dropdown(label="clip_qwen3_4b", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_qwen3_4b", None),)
-                add_setting("clip_qwen3_4b", clip_qwen3_4b)
-                clip_qwen3_8b = gr.Dropdown(label="clip_qwen3_8b", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_qwen3_8b", None),)
-                add_setting("clip_qwen3_8b", clip_qwen3_8b)
-                clip_qwen3_06b = gr.Dropdown(label="clip_qwen3_06b", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_qwen3_06b", None),)
+                clip_qwen3_06b = gr.Dropdown(label="clip_qwen3_06b (Anima)", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_qwen3_06b", None),)
                 add_setting("clip_qwen3_06b", clip_qwen3_06b)
-                clip_oldt5 = gr.Dropdown(label="clip_oldt5", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_oldt5", None),)
+                clip_qwen3_4b = gr.Dropdown(label="clip_qwen3_4b (Flux2 Klein 4B, ZImage)", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_qwen3_4b", None),)
+                add_setting("clip_qwen3_4b", clip_qwen3_4b)
+                clip_qwen3_8b = gr.Dropdown(label="clip_qwen3_8b (Flux2 Klein )B)", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_qwen3_8b", None),)
+                add_setting("clip_qwen3_8b", clip_qwen3_8b)
+                clip_oldt5 = gr.Dropdown(label="clip_oldt5 (CosmosPredict2)", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_oldt5", None),)
                 add_setting("clip_oldt5", clip_oldt5)
-                clip_t5 = gr.Dropdown(label="clip_t5", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_t5", None),)
+                clip_t5 = gr.Dropdown(label="clip_t5 (Flux, HiDream, PixArt, SD3)", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_t5", None),)
                 add_setting("clip_t5", clip_t5)
                 clip_umt5 = gr.Dropdown(label="clip_umt5", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_umt5", None),)
                 add_setting("clip_umt5", clip_umt5)
@@ -313,6 +315,27 @@ def create_settings():
             fn=save_clicked,
             api_visibility='undocumented',
             inputs=state["setting_obj"],
+        )
+
+        # These files are checked in launch.py to trigger a --force-reinstall
+        def trigger_reinstall_all():
+            Path('reinstall').touch()
+            gr.Info("'reinstall' file created. Python modules will be reinstalled next restart.")
+        def trigger_reinstall_torch():
+            Path('reinstalltorch').touch()
+            gr.Info("'reinstalltorch' file created. Torch modules will be reinstalled next restart.")
+
+        with gr.Group(), gr.Row():
+            reinstall_all_btn = gr.Button(t("Trigger reinstall of all python modules"))
+            reinstall_torch_btn = gr.Button(t("Trigger reinstall of torch"))
+
+        reinstall_all_btn.click(
+            fn=trigger_reinstall_all,
+            api_visibility='undocumented',
+        )
+        reinstall_torch_btn.click(
+            fn=trigger_reinstall_torch,
+            api_visibility='undocumented',
         )
 
     return app_settings

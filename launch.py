@@ -120,6 +120,9 @@ def prepare_environment(offline=False):
 
         # Run torchruntime install
         cmds = torchruntime.installer.get_install_commands(torch_platform, [])
+        if REINSTALL_ALL or REINSTALL_TORCH:
+            for idx in range(len(cmds)):
+                cmds[idx].insert(0, "--force-reinstall")
         cmds = torchruntime.installer.get_pip_commands(cmds)
         torchruntime.installer.run_commands(cmds)
         torchruntime.configure()
@@ -129,7 +132,7 @@ def prepare_environment(offline=False):
             run_pip(f'install -r "{modules_file}"', "required modules")
 
         try:
-            xlc_version = "xllamacpp==0.2.4"
+            xlc_version = "xllamacpp==0.2.1"
             if REINSTALL_ALL or not is_installed(xlc_version):
                 platform_index = {
                     'cu124': 'https://xorbitsai.github.io/xllamacpp/whl/cu124',
@@ -185,6 +188,9 @@ from argparser import args
 REINSTALL_ALL = False
 if os.path.exists("reinstall"):
     REINSTALL_ALL = True
+REINSTALL_TORCH = False
+if os.path.exists("reinstalltorch"):
+    REINSTALL_TORCH = True
 
 if args.gpu_device_id is not None:
     os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu_device_id)
@@ -199,6 +205,8 @@ prepare_environment(offline)
 
 if os.path.exists("reinstall"):
     os.remove("reinstall")
+if os.path.exists("reinstalltorch"):
+    os.remove("reinstalltorch")
 
 try:
     clone_git_repos(offline)

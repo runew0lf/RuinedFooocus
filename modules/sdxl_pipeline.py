@@ -214,7 +214,10 @@ class pipeline:
             "Flux": {
                 "latent": "SD3",
                 "clip_type": comfy.sd.CLIPType.FLUX,
-                "clip_names": [self.get_clip_name("clip_l"), self.get_clip_name("clip_t5")],
+                "clip_names": [
+                    self.get_clip_name("clip_l"),
+                    self.get_clip_name("clip_t5")
+                ],
                 "vae_name": self.get_vae_name("vae_flux")
             },
             "Flux2": {
@@ -290,7 +293,10 @@ class pipeline:
             },
             "SDXL": {
                 "clip_type": comfy.sd.CLIPType.STABLE_DIFFUSION,
-                "clip_names": [self.get_clip_name("clip_l"), self.get_clip_name("clip_g")],
+                "clip_names": [
+                    self.get_clip_name("clip_l"),
+                    self.get_clip_name("clip_g")
+                ],
                 "vae_name": self.get_vae_name("vae_sdxl")
             },
             "ZImage": {
