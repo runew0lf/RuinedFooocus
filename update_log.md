@@ -1,6 +1,6 @@
 ### devel
-* Gradio 6.10.0
-* Bugfixes
+* Gradio 6.10.0 & Torchruntime 2.8.0
+* Fixes for Flux2 models and chatbots
 
 ### 26.03.16
 * [Anima](https://huggingface.co/circlestone-labs/Anima) support
