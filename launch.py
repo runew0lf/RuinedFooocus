@@ -118,6 +118,10 @@ def prepare_environment(offline=False):
     else:
         os.environ["FLASH_ATTENTION_SKIP_CUDA_BUILD"] = "TRUE"
 
+        if REINSTALL_ALL or not requirements_met(modules_file):
+            print("This next step may take a while")
+            run_pip(f'install -r "{modules_file}"', "required modules")
+
         # Run torchruntime install
         cmds = torchruntime.installer.get_install_commands(torch_platform, [])
         if REINSTALL_ALL or REINSTALL_TORCH:
@@ -126,10 +130,6 @@ def prepare_environment(offline=False):
         cmds = torchruntime.installer.get_pip_commands(cmds)
         torchruntime.installer.run_commands(cmds)
         torchruntime.configure()
-
-        if REINSTALL_ALL or not requirements_met(modules_file):
-            print("This next step may take a while")
-            run_pip(f'install -r "{modules_file}"', "required modules")
 
         try:
             xlc_version = "xllamacpp==0.2.1"
