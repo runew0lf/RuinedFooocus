@@ -103,5 +103,20 @@
         "url": "https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5/resolve/main/vae/diffusion_pytorch_model.safetensors",
         "path": "path_vae",
         "filename": "sd15_vae.safetensors"
+    },
+    "vae/LTX2_audio_vae_bf16.safetensors": {
+        "url": "https://huggingface.co/Kijai/LTXV2_comfy/resolve/main/VAE/LTX2_audio_vae_bf16.safetensors",
+        "path": "path_vae",
+        "filename": "LTX2_audio_vae_bf16.safetensors"
+    },
+    "vae/LTX2_video_vae_bf16.safetensors": {
+        "url": "https://huggingface.co/Kijai/LTXV2_comfy/resolve/main/VAE/LTX2_video_vae_bf16.safetensors",
+        "path": "path_vae",
+        "filename": "LTX2_video_vae_bf16.safetensors"
+    },
+    "vae/taeltx_2.safetensors": {
+        "url": "https://huggingface.co/Kijai/LTXV2_comfy/resolve/main/VAE/taeltx_2.safetensors",
+        "path": "path_vae",
+        "filename": "taeltx_2.safetensors"
     }
 }

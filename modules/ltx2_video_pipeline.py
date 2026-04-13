@@ -11,7 +11,7 @@ from modules.util import generate_temp_filename
 from PIL import Image
 
 import os
-from comfy.model_base import LTXV
+from comfy.model_base import LTXAV
 from shared import path_manager, settings
 import shared
 
@@ -49,11 +49,12 @@ class pipeline:
     pipeline_type = ["ltx2_video"]
 
     class StableDiffusionModel:
-        def __init__(self, unet, vae, clip, clip_vision):
+        def __init__(self, unet, vae, clip, clip_vision, audio_vae=None):
             self.unet = unet
             self.vae = vae
             self.clip = clip
             self.clip_vision = clip_vision
+            self.audio_vae = audio_vae
 
         def to_meta(self):
             if self.unet is not None:
@@ -78,7 +79,7 @@ class pipeline:
         gen_data["show_preview"] = False
         return gen_data
 
-    def load_base_model(self, name, unet_only=False, input_unet=None, hash=None):
+    def load_base_model(self, name, unet_only=True, input_unet=None, hash=None):
 
         # Check if model is already loaded
         # FIXME: should not load all models?`(to avoid oom)
@@ -115,8 +116,6 @@ class pipeline:
             with torch.torch.inference_mode():
                 try:
                     if filename.endswith(".gguf"):
-#                        sd = load_gguf_sd(filename)[0]
-
                         extra = {}
                         try:
                             sd, extra = load_gguf_sd(filename)
@@ -126,10 +125,9 @@ class pipeline:
                         self.ggml_ops.Linear.dequant_dtype = None
                         self.ggml_ops.Linear.patch_dtype = None
                         unet = comfy.sd.load_diffusion_model_state_dict(
-                            sd, model_options={"custom_operations": self.ggml_ops}
+                            sd, model_options={"custom_operations": self.ggml_ops}, metadata=extra.get("metadata", {})
                         )
                         unet = GGUFModelPatcher.clone(unet)
-#                        unet = UnetLoaderGGUF().load_unet(unet_name=filename)[0]
                         unet.patch_on_device = True
                     else:
                         model_options = {}
@@ -139,8 +137,8 @@ class pipeline:
                     clip_paths = []
                     clip_names = []
 
-                    if isinstance(unet.model, LTXV):
-                        clip_name = settings.default_settings.get("clip_t5", "t5-v1_1-xxl-encoder-Q3_K_S.gguf")
+                    if isinstance(unet.model, LTXAV):
+                        clip_name = settings.default_settings.get("clip_gemma3_12b", "gemma-3-12b-it-Q4_K_S.gguf")
                         clip_names.append(str(clip_name))
                         clip_path = path_manager.get_folder_file_path(
                             "clip",
@@ -149,10 +147,17 @@ class pipeline:
                         )
                         clip_paths.append(str(clip_path))
 
-                        clip_type = comfy.sd.CLIPType.HUNYUAN_VIDEO
-                        # https://huggingface.co/calcuis/hunyuan-gguf/tree/main
-                        vae_name = settings.default_settings.get("vae_ltxv", "pig_video_97_vae_fp32-f16.gguf") # FIXME!!!
+                        clip_name = settings.default_settings.get("clip_ltx23_22b_proj", "ltx-2.3-22b_text_projection_bf16.safetensors")
+                        clip_names.append(str(clip_name))
+                        clip_path = path_manager.get_folder_file_path(
+                            "clip",
+                            clip_name,
+                            default = os.path.join(path_manager.model_paths["clip_path"], clip_name)
+                        )
+                        clip_paths.append(str(clip_path))
 
+                        vae_name = settings.default_settings.get("vae_ltxv2", "LTX2_video_vae_bf16.safetensors")
+                        audio_vae_name = settings.default_settings.get("vae_ltxv2_audio", "LTX2_audio_vae_bf16.safetensors")
                     else:
                         print(f"ERROR: Not a LTX2 Video model?")
                         unet = None
@@ -179,10 +184,25 @@ class pipeline:
                         vae_name,
                         default = os.path.join(path_manager.model_paths["vae_path"], vae_name)
                     )
+                    audio_vae_path = path_manager.get_folder_file_path(
+                        "vae",
+                        audio_vae_name,
+                        default = os.path.join(path_manager.model_paths["vae_path"], audio_vae_name)
+                    )
 
                     print(f"Loading VAE: {vae_name}")
-                    sd = load_gguf_sd(str(vae_path))
+                    if str(vae_path).endswith(".gguf"):
+                        sd = load_gguf_sd(str(vae_path))
+                    else:
+                        sd = comfy.utils.load_torch_file(str(vae_path))
                     vae = comfy.sd.VAE(sd=sd)
+
+                    print(f"Loading Audio VAE: {audio_vae_name}")
+                    if str(vae_path).endswith(".gguf"):
+                        sd = load_gguf_sd(str(audio_vae_path))
+                    else:
+                        sd = comfy.utils.load_torch_file(str(audio_vae_path))
+                    audio_vae = comfy.sd.VAE(sd=sd)
 
 
                     clip_vision = None
@@ -214,7 +234,7 @@ class pipeline:
                 unet=unet, clip=clip, vae=vae, clip_vision=clip_vision
             )
             if not (
-                isinstance(self.model_base.unet.model, LTXV)
+                isinstance(self.model_base.unet.model, LTXAV)
             ):
                 print(
                     f"Model {type(self.model_base.unet.model)} not supported. Expected LTX Video model."
@@ -530,18 +550,18 @@ class pipeline:
             positive = self.conditions["+"]["cache"]
 
         # * EmptyLTXVLatentVideo(w, h, l) + LTXV Empty Latent Audio -> LTXVConatAVLatent
-        audio_vae_name = settings.default_settings.get("vae_audio_ltxv2", "vae/LTX2_audio_vae_bf16.safetensors")
-        audio_vae_path = path_manager.get_folder_file_path(
-            "vae",
-            audio_vae_name,
-            default = os.path.join(path_manager.model_paths["vae_path"], vae_name)
-        )
-
-        print(f"Loading Audio VAE: {audio_vae_name}")
-        audio_vae = comfy.utils.load_torch_file(audio_vae_path, safe_load=True)
+#        audio_vae_name = settings.default_settings.get("vae_audio_ltxv2", "vae/LTX2_audio_vae_bf16.safetensors")
+#        audio_vae_path = path_manager.get_folder_file_path(
+#            "vae",
+#            audio_vae_name,
+#            default = os.path.join(path_manager.model_paths["vae_path"], audio_vae_name)
+#        )
+#
+#        print(f"Loading Audio VAE: {audio_vae_name}")
+#        audio_vae = comfy.utils.load_torch_file(audio_vae_path, safe_load=True)
 
         empty_audio = LTXVEmptyLatentAudio().execute(
-            audio_vae = audio_vae,
+            audio_vae = self.model_base_patched.audio_vae,
             frames_number = frame_number,
             frame_rate = gen_data["frame_rate"]
         )[0]
