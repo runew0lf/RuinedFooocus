@@ -3,6 +3,10 @@ from comfy.model_patcher import ModelPatcher
 from transformers import AutoTokenizer, AutoModelForCausalLM, set_seed
 import comfy.model_management as model_management
 from transformers.generation.logits_process import LogitsProcessorList
+from comfyui_gguf.nodes import gguf_sd_loader as load_gguf_sd, DualCLIPLoaderGGUF, GGUFModelPatcher
+from comfyui_gguf.ops import GGMLOps
+from comfy.sd import CLIPType, load_clip
+from shared import path_manager, settings
 import os
 import random
 import sys
@@ -118,6 +122,70 @@ class PromptExpansion:
         final_prompt = expansion_text
 
         return final_prompt
+
+
+class Erniehancer:
+    def __init__(self):
+        self.clip = None
+        self.clip_names = []
+        self.clip_paths = []
+        self.clip_type = CLIPType.FLUX2
+
+        clip_name = settings.default_settings.get("clip_ernie_enhancer", "ernie-image-prompt-enhancer.safetensors")
+        self.clip_names.append(str(clip_name))
+        clip_path = path_manager.get_folder_file_path(
+            "clip",
+            clip_name,
+            default = os.path.join(path_manager.model_paths["clip_path"], clip_name)
+        )
+        self.clip_paths.append(str(clip_path))
+
+        print(f"Loading Erniehancer: {self.clip_names}")
+        if all(name.endswith(".safetensors") for name in self.clip_paths):
+            model_options = {}
+            device = model_management.get_torch_device()
+#            if device == "cpu":
+#                model_options["load_device"] = model_options["offload_device"] = torch.device("cpu")
+            model_options["load_device"] = model_options["offload_device"] = device
+            self.clip = load_clip(ckpt_paths=self.clip_paths, clip_type=self.clip_type, model_options=model_options)
+        else:
+            clip_loader = DualCLIPLoaderGGUF()
+            self.clip = clip_loader.load_patcher(
+                self.clip_paths,
+                self.clip_type,
+                clip_loader.load_data(clip_paths)
+            )
+
+    def execute(self, prompt, image=None, thinking=False):
+        tokens = self.clip.tokenize(prompt, image=image, skip_template=False, min_length=1, thinking=thinking)
+
+        # Get sampling parameters
+        do_sample = True
+        max_length = 512
+        temperature = 0.6
+        top_k = 64
+        top_p = 0.8
+        min_p = 0.05
+        repetition_penalty = 1.5
+        presence_penalty = 0.0
+        seed = random.randint(1, 2**32)
+
+        generated_ids = self.clip.generate(
+            tokens,
+            do_sample=do_sample,
+            max_length=max_length,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+            min_p=min_p,
+            repetition_penalty=repetition_penalty,
+            presence_penalty=presence_penalty,
+            seed=seed
+        )
+
+        generated_text = self.clip.decode(generated_ids, skip_special_tokens=True)
+        print(f"Erniehanced prompt:\n{generated_text}")
+        return generated_text
 
 
 # Define a mapping of node class names to their respective classes

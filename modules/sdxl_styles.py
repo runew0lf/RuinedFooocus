@@ -3,7 +3,7 @@ import csv
 from os.path import exists
 from csv import DictReader
 from pathlib import Path
-from modules.prompt_expansion import PromptExpansion
+from modules.prompt_expansion import PromptExpansion, Erniehancer
 from random_prompt import build_dynamic_prompt
 
 DEFAULT_STYLES_FILE = Path("settings/styles.default")
@@ -66,6 +66,11 @@ def load_styles():
         "prompt": "{prompt}",
         "negative_prompt": "",
     }
+    erniehancer_style = {
+        "name": "Erniehancer",
+        "prompt": "{prompt}",
+        "negative_prompt": "",
+    }
     facerestore_style = {
         "name": "Face restore",
         "prompt": "{prompt}<facerestore>",
@@ -73,6 +78,7 @@ def load_styles():
     }
 
     styles.insert(0, facerestore_style)
+    styles.insert(0, erniehancer_style)
     styles.insert(0, hyperprompt_style)
     styles.insert(0, flufferizer_style)
     styles.insert(0, lora_keywords_style)
@@ -88,6 +94,7 @@ def apply_style(style, prompt, negative_prompt, lora_keywords):
     temp_style_prompt = prompt
     bFlufferizer = False
     bHyperprompt = False
+    bErniehancer = False
     artifylist = []
     artifystylelist = []
     index = 0
@@ -106,6 +113,10 @@ def apply_style(style, prompt, negative_prompt, lora_keywords):
 
         if _s in map(str.upper, ["Hyperprompt", "Style: Hyperprompt"]):
             bHyperprompt = True
+            del style[style.index(s)]
+
+        if _s in map(str.upper, ["Erniehancer", "Style: Erniehancer"]):
+            bErniehancer = True
             del style[style.index(s)]
 
         if _s in map(str.upper, ["LoRA keywords", "Style: LoRA keywords"]):
@@ -147,6 +158,9 @@ def apply_style(style, prompt, negative_prompt, lora_keywords):
 
     if bFlufferizer:
         output_prompt = prompt_expansion.expand_prompt(output_prompt)
+
+    if bErniehancer:
+        output_prompt = Erniehancer().execute(output_prompt)
 
     if lora_keywords is not None:
         output_prompt = output_prompt.replace("{lora_keywords}", lora_keywords)

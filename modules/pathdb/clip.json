@@ -29,6 +29,11 @@
         "path": "path_clip",
         "filename": "cow-mistral3-small-q2_k.gguf"
     },
+    "clip/ernie-image-prompt-enhancer.safetensors": {
+        "url": "https://huggingface.co/Comfy-Org/ERNIE-Image/resolve/main/text_encoders/ernie-image-prompt-enhancer.safetensors",
+        "path": "path_clip",
+        "filename": "ernie-image-prompt-enhancer.safetensors"
+    },
     "clip/gemma_2_2b_fp16.safetensors": {
         "url": "https://huggingface.co/calcuis/lumina-gguf/resolve/main/gemma_2_2b_fp16.safetensors",
         "path": "path_clip",

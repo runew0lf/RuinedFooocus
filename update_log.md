@@ -1,5 +1,6 @@
 ### development
 * Ernie-Image support
+* Erniehancer
 
 ### 26.04.13
 * Fixes and help files
