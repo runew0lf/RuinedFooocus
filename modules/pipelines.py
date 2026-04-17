@@ -11,7 +11,7 @@ try:
     state["faceswap_loaded"] = True
 except:
     state["faceswap_loaded"] = False
-import modules.sdxl_pipeline as sdxl_pipeline
+import modules.image_pipeline as image_pipeline
 import modules.template_pipeline as template_pipeline
 import modules.upscale_pipeline as upscale_pipeline
 import modules.search_pipeline as search_pipeline
@@ -148,11 +148,11 @@ def update(gen_data):
             elif baseModel is not None:
                 # Try with the sdxl/default pipeline if baseModel is set.
                 if ("sdxl" not in state["pipeline"].pipeline_type):
-                    state["pipeline"] = sdxl_pipeline.pipeline()
+                    state["pipeline"] = image_pipeline.pipeline()
 
         if state["pipeline"] is None or len(state["pipeline"].pipeline_type) == 0:
             print(f"Using default pipeline.")
-            state["pipeline"] = sdxl_pipeline.pipeline()
+            state["pipeline"] = image_pipeline.pipeline()
 
         return state["pipeline"]
     except:
