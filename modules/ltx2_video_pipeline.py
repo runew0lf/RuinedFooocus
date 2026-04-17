@@ -50,10 +50,10 @@ class pipeline:
 
     class StableDiffusionModel:
         def __init__(self, unet, vae, clip, clip_vision, audio_vae=None):
-            self.unet = unet
-            self.vae = vae
             self.clip = clip
+            self.unet = unet
             self.clip_vision = clip_vision
+            self.vae = vae
             self.audio_vae = audio_vae
 
         def to_meta(self):
@@ -64,6 +64,9 @@ class pipeline:
             if self.vae is not None:
                 self.vae.first_stage_model.to("meta")
 
+    clip = None
+    vae = None
+    audio_vae = None
     model_hash = ""
     model_base = None
     model_hash_patched = ""
@@ -138,7 +141,7 @@ class pipeline:
                     clip_names = []
 
                     if isinstance(unet.model, LTXAV):
-                        clip_name = settings.default_settings.get("clip_gemma3_12b", "gemma-3-12b-it-qat-UD-Q4_K_XL.gguf")
+                        clip_name = settings.default_settings.get("clip_gemma3_12b", "gemma-3-12b-it-Q4_0.gguf")
                         clip_names.append(str(clip_name))
                         clip_path = path_manager.get_folder_file_path(
                             "clip",
@@ -147,7 +150,16 @@ class pipeline:
                         )
                         clip_paths.append(str(clip_path))
 
-                        clip_name = settings.default_settings.get("clip_gemma3_12b_mmproj", "gemma-3-12b-it-mmproj-F16.gguf")
+#                        clip_name = settings.default_settings.get("clip_ltx23_mmproj", "mmproj-F16.gguf")
+#                        clip_names.append(str(clip_name))
+#                        clip_path = path_manager.get_folder_file_path(
+#                            "clip",
+#                            clip_name,
+#                            default = os.path.join(path_manager.model_paths["clip_path"], clip_name)
+#                        )
+#                        clip_paths.append(str(clip_path))
+
+                        clip_name = settings.default_settings.get("clip_ltx23_text_proj", "ltx-2.3_text_projection_bf16.safetensors")
                         clip_names.append(str(clip_name))
                         clip_path = path_manager.get_folder_file_path(
                             "clip",
@@ -156,24 +168,23 @@ class pipeline:
                         )
                         clip_paths.append(str(clip_path))
 
-                        clip_name = settings.default_settings.get("clip_ltx23_22b_connwctors", "ltx-2.3-22b-distilled_embeddings_connectors.safetensors")
-                        clip_names.append(str(clip_name))
-                        clip_path = path_manager.get_folder_file_path(
-                            "clip",
-                            clip_name,
-                            default = os.path.join(path_manager.model_paths["clip_path"], clip_name)
-                        )
-                        clip_paths.append(str(clip_path))
+#                        clip_name = settings.default_settings.get("clip_ltx23_22b_connwctors", "ltx-2.3-22b-distilled_embeddings_connectors.safetensors")
+#                        clip_names.append(str(clip_name))
+#                        clip_path = path_manager.get_folder_file_path(
+#                            "clip",
+#                            clip_name,
+#                            default = os.path.join(path_manager.model_paths["clip_path"], clip_name)
+#                        )
+#                        clip_paths.append(str(clip_path))
 
-                        vae_name = settings.default_settings.get("vae_ltxv2", "LTX2_video_vae_bf16.safetensors")
-                        audio_vae_name = settings.default_settings.get("vae_ltxv2_audio", "LTX2_audio_vae_bf16.safetensors")
+                        vae_name = settings.default_settings.get("vae_ltxv23_video", "LTX23_video_vae_bf16.safetensors")
+                        audio_vae_name = settings.default_settings.get("vae_ltxv23_audio", "LTX23_audio_vae_bf16.safetensors")
                     else:
                         print(f"ERROR: Not a LTX2 Video model?")
                         unet = None
                         return
 
                     print(f"Loading CLIP: {clip_names}")
-                    clip_type = comfy.sd.CLIPType.LTXV
 #                    if all(name.endswith(".safetensors") for name in clip_paths):
 #                        model_options = {}
 #                        device = comfy.model_management.get_torch_device()
@@ -184,14 +195,12 @@ class pipeline:
                     if True:
                         clip_loader = DualCLIPLoaderGGUF()
                         print(f"DEBUG: load_data")
-                        clip_data = clip_loader.load_data(clip_paths)
-                        print(f"DEBUG: load_patcher")
                         clip = clip_loader.load_patcher(
                             clip_paths,
-                            clip_type,
-                            clip_data
+                            comfy.sd.CLIPType.LTXV,
+                            clip_loader.load_data(clip_paths)
                         )
-                        print(f"DEBUG: clip done")
+                        print(f"DEBUG: clip done: {type(clip)}")
 
                     vae_path = path_manager.get_folder_file_path(
                         "vae",
@@ -207,17 +216,21 @@ class pipeline:
                     print(f"Loading VAE: {vae_name}")
                     if str(vae_path).endswith(".gguf"):
                         sd = load_gguf_sd(str(vae_path))
+                        metadata = None
                     else:
-                        sd = comfy.utils.load_torch_file(str(vae_path))
-                    vae = comfy.sd.VAE(sd=sd)
+                        sd, metadata = comfy.utils.load_torch_file(str(vae_path), return_metadata=True)
+                    vae = comfy.sd.VAE(sd=sd, metadata=metadata)
+                    print(f"DEBUG: video vae: {type(vae)}")
+
 
                     print(f"Loading Audio VAE: {audio_vae_name}")
                     if str(vae_path).endswith(".gguf"):
                         sd = load_gguf_sd(str(audio_vae_path))
+                        metadata = None
                     else:
-                        sd = comfy.utils.load_torch_file(str(audio_vae_path))
-                    audio_vae = comfy.sd.VAE(sd=sd)
-
+                        sd, metadata = comfy.utils.load_torch_file(str(audio_vae_path), return_metadata=True)
+                    audio_vae = comfy.sd.VAE(sd=sd, metadata=metadata)
+                    print(f"DEBUG: audio vae: {type(audio_vae)}")
 
                     clip_vision = None
                 except Exception as e:
@@ -232,7 +245,7 @@ class pipeline:
                 if clip == None or vae == None:
                     raise
             except:
-                print(f"Failed. Trying to load as unet.")
+                print(f"Trying to load as unet.")
                 self.load_base_model(
                     filename,
                     unet_only=True
@@ -245,8 +258,11 @@ class pipeline:
             self.model_hash = ""
         else:
             self.model_base = self.StableDiffusionModel(
-                unet=unet, clip=clip, vae=vae, clip_vision=clip_vision
+                unet=unet, clip=None, vae=vae, clip_vision=clip_vision
             )
+            self.clip = clip
+            self.vae = vae
+            self.audio_vae = audio_vae
             if not (
                 isinstance(self.model_base.unet.model, LTXAV)
             ):
@@ -302,9 +318,9 @@ class pipeline:
                 )
                 model = self.StableDiffusionModel(
                     unet=unet,
-                    clip=clip,
-                    vae=model.vae,
-                    clip_vision=model.clip_vision,
+                    clip=None,
+                    vae=None,
+                    clip_vision=None,
                 )
                 loaded_loras += [(name, weight)]
             except:
@@ -329,7 +345,7 @@ class pipeline:
         hash = f"{text} {clip_skip}"
         if hash != self.conditions[id]["text"]:
             self.conditions[id]["cache"] = CLIPTextEncode().encode(
-                clip=self.model_base_patched.clip, text=text
+                clip=self.clip, text=text
             )[0]
         self.conditions[id]["text"] = hash
         update = True
@@ -575,9 +591,10 @@ class pipeline:
 #        audio_vae = comfy.utils.load_torch_file(audio_vae_path, safe_load=True)
 
         empty_audio = LTXVEmptyLatentAudio().execute(
-            audio_vae = self.model_base_patched.audio_vae,
+            audio_vae = self.audio_vae,
             frames_number = frame_number,
-            frame_rate = gen_data["frame_rate"]
+            frame_rate = gen_data["frame_rate"],
+            batch_size = 1,
         )[0]
         video_latent = LTXVConcatAVLatent().execute(
             video_latent = latent_image,
