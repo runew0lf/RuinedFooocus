@@ -114,6 +114,16 @@
         "path": "path_vae",
         "filename": "LTX2_video_vae_bf16.safetensors"
     },
+    "vae/LTX23_audio_vae_bf16.safetensors": {
+        "url": "https://huggingface.co/Kijai/LTX2.3_comfy/resolve/main/vae/LTX23_audio_vae_bf16.safetensors",
+        "path": "path_vae",
+        "filename": "LTX23_audio_vae_bf16.safetensors"
+    },
+    "vae/LTX23_video_vae_bf16.safetensors": {
+        "url": "https://huggingface.co/Kijai/LTX2.3_comfy/resolve/main/vae/LTX23_video_vae_bf16.safetensors",
+        "path": "path_vae",
+        "filename": "LTX23_video_vae_bf16.safetensors"
+    },
     "vae/taeltx_2.safetensors": {
         "url": "https://huggingface.co/Kijai/LTXV2_comfy/resolve/main/VAE/taeltx_2.safetensors",
         "path": "path_vae",

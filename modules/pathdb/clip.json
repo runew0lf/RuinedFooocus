@@ -44,6 +44,11 @@
         "path": "path_clip",
         "filename": "gemma-3-12b-it-qat-UD-Q4_K_XL.gguf"
     },
+    "clip/gemma-3-12b-it-Q4_0.gguf": {
+        "url": "https://huggingface.co/unsloth/gemma-3-12b-it-GGUF/resolve/main/gemma-3-12b-it-Q4_0.gguf",
+        "path": "path_clip",
+        "filename": "gemma-3-12b-it-Q4_0.gguf"
+    },
     "clip/gemma-3-12b-it-Q4_K_S.gguf": {
         "url": "https://huggingface.co/unsloth/gemma-3-12b-it-GGUF/resolve/main/gemma-3-12b-it-Q4_K_S.gguf",
         "path": "path_clip",
@@ -93,6 +98,11 @@
         "url": "https://huggingface.co/unsloth/LTX-2.3-GGUF/resolve/main/text_encoders/ltx-2.3-22b-distilled_embeddings_connectors.safetensors",
         "path": "path_clip",
         "filename": "ltx-2.3-22b-distilled_embeddings_connectors.safetensors"
+    },
+    "clip/ltx-2.3_text_projection_bf16.safetensors": {
+        "url": "https://huggingface.co/Kijai/LTX2.3_comfy/resolve/main/text_encoders/ltx-2.3_text_projection_bf16.safetensors",
+        "path": "path_clip",
+        "filename": "ltx-2.3_text_projection_bf16.safetensors"
     },
     "clip/mistral_3_small_flux2_fp8.safetensors": {
         "url": "https://huggingface.co/Comfy-Org/flux2-dev/resolve/main/split_files/text_encoders/mistral_3_small_flux2_fp8.safetensors",
