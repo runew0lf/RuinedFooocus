@@ -9,7 +9,7 @@ mkdir $RESULT
 curl -L -o $DL/embed.zip $URL
 unzip -x $DL/embed.zip -d $RESULT
 rename 's/_pth/pth/' $RESULT/python*._pth
-echo "import site" >> $RESULT/python*.pth
+echo "import site" >> $(ls $RESULT/python*.pth)
 curl -L -o $RESULT/get-pip.py https://bootstrap.pypa.io/get-pip.py
 (proton-call -r $RESULT/python.exe $RESULT/get-pip.py)
 (proton-call -r $RESULT/Scripts/pip.exe install wheel packaging pygit2 setuptools==80.9.0 cffi==2.0.0)
