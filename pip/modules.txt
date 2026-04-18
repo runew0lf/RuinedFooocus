@@ -11,7 +11,6 @@ diffusers==0.32.1
 imageio-ffmpeg==0.5.1
 ftfy==6.1.1
 clip_interrogator==0.6.0
-numpy==1.26.4
 opencv-python-headless==4.11.0.86
 kornia==0.7.3
 sentencepiece==0.2.0
@@ -33,9 +32,6 @@ transformers==5.5.4
 tokenizers==0.22.1
 xmltodict==0.14.2
 websockets==15.0.1
-filterpy==1.4.5
-basicsr==1.4.2
-gfpgan==1.3.8
 comfy-kitchen==0.2.8
 comfy-aimdo==0.2.12
 requests==2.33.1

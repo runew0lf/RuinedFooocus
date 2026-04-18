@@ -71,13 +71,7 @@ def load_styles():
         "prompt": "{prompt}",
         "negative_prompt": "",
     }
-    facerestore_style = {
-        "name": "Face restore",
-        "prompt": "{prompt}<facerestore>",
-        "negative_prompt": "",
-    }
 
-    styles.insert(0, facerestore_style)
     styles.insert(0, erniehancer_style)
     styles.insert(0, hyperprompt_style)
     styles.insert(0, flufferizer_style)
@@ -121,9 +115,6 @@ def apply_style(style, prompt, negative_prompt, lora_keywords):
 
         if _s in map(str.upper, ["LoRA keywords", "Style: LoRA keywords"]):
             style[style.index(s)] = "LoRA keywords" # Make sure it has the correct name
-
-        if _s in map(str.upper, ["Face restore", "Style: Face restore"]):
-            style[style.index(s)] = "Face restore"
 
     if bHyperprompt:
         prompt = build_dynamic_prompt.one_button_superprompt(prompt=prompt)

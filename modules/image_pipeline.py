@@ -9,7 +9,6 @@ import re
 import modules.controlnet
 import modules.async_worker as worker
 import modules.prompt_processing as pp
-from modules.facerestore import facerestore
 
 from PIL import Image, ImageOps
 
@@ -294,7 +293,6 @@ class pipeline:
     inference_memory = None
 
     ggml_ops = GGMLOps()
-    facefixer = facerestore()
 
     def get_clip_and_vae(self, unet):
         unet_type = unet.model.__class__.__name__
@@ -942,19 +940,5 @@ class pipeline:
         shared.shared_cache["prev_image"] = images[0]
         if callback is not None:
             callback(gen_data["steps"], 0, 0, gen_data["steps"], images[0])
-
-        if gen_data.get("facerestore", False) == True:
-            if callback is not None:
-                worker.add_result(
-                    gen_data["task_id"],
-                    "preview",
-                    (-1, f"Enhancing ...", None)
-                )
-            self.facefixer.load_gfpgan_model()
-            images = [self.facefixer.process(images[0])]
-
-            shared.shared_cache["prev_image"] = images[0]
-            if callback is not None:
-                callback(gen_data["steps"], 0, 0, gen_data["steps"], images[0])
 
         return images

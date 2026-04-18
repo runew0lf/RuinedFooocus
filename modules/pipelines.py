@@ -4,13 +4,6 @@ import shared
 from pathlib import Path
 import re
 
-try:
-    import modules.faceswapper_pipeline as faceswapper_pipeline
-
-    print("INFO: Faceswap enabled")
-    state["faceswap_loaded"] = True
-except:
-    state["faceswap_loaded"] = False
 import modules.image_pipeline as image_pipeline
 import modules.template_pipeline as template_pipeline
 import modules.upscale_pipeline as upscale_pipeline
@@ -67,13 +60,6 @@ def update(gen_data):
                 or "upscale" not in state["pipeline"].pipeline_type
             ):
                 state["pipeline"] = upscale_pipeline.pipeline()
-
-        elif cn_type.lower() == "faceswap" and state["faceswap_loaded"]:
-            if (
-                state["pipeline"] is None
-                or "faceswap" not in state["pipeline"].pipeline_type
-            ):
-                state["pipeline"] = faceswapper_pipeline.pipeline()
 
         elif cn_type.lower() == "rembg":
             if (
