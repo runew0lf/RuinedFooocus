@@ -5,6 +5,7 @@ import torch
 import einops
 import traceback
 import cv2
+import logging
 
 import modules.async_worker as worker
 from modules.util import generate_temp_filename
@@ -74,6 +75,7 @@ class pipeline:
     conditions = None
 
     ggml_ops = GGMLOps()
+    logger = logging.getLogger()
 
     # Optional function
     def parse_gen_data(self, gen_data):
@@ -195,11 +197,13 @@ class pipeline:
                     if True:
                         clip_loader = DualCLIPLoaderGGUF()
                         print(f"DEBUG: load_data")
+                        self.logger.setLevel(self.logger.ERROR)
                         clip = clip_loader.load_patcher(
                             clip_paths,
                             comfy.sd.CLIPType.LTXV,
                             clip_loader.load_data(clip_paths)
                         )
+                        self.logger.setLevel(self.logger.WARNING)
                         print(f"DEBUG: clip done: {type(clip)}")
 
                     vae_path = path_manager.get_folder_file_path(
@@ -229,7 +233,17 @@ class pipeline:
                         metadata = None
                     else:
                         sd, metadata = comfy.utils.load_torch_file(str(audio_vae_path), return_metadata=True)
-                    audio_vae = comfy.sd.VAE(sd=sd, metadata=metadata)
+
+                    # https://github.com/kijai/ComfyUI-KJNodes/blob/main/nodes/nodes.py#L2453C1-L2476C22
+                    try:
+                        sd = comfy.utils.state_dict_prefix_replace(
+                            dict(sd), {"audio_vae.": "autoencoder.", "vocoder.": "vocoder."}, filter_keys=True
+                        )
+                        audio_vae = VAE(sd=sd_audio, metadata=metadata)
+                        audio_vae.throw_exception_if_invalid()
+                    except Exception:
+                        from comfy.ldm.lightricks.vae.audio_vae import AudioVAE
+                        audio_vae = AudioVAE(sd, metadata)
                     print(f"DEBUG: audio vae: {type(audio_vae)}")
 
                     clip_vision = None
