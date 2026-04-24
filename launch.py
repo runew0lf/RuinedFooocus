@@ -204,9 +204,15 @@ if offline:
 prepare_environment(offline)
 
 if os.path.exists("reinstall"):
-    os.remove("reinstall")
+    try:
+        os.remove("reinstall")
+    except:
+        print("ERROR: Failed to remove 'reinstall'. Pleae remove manually.")
 if os.path.exists("reinstalltorch"):
-    os.remove("reinstalltorch")
+    try:
+        os.remove("reinstalltorch")
+    except:
+        print("ERROR: Failed to remove 'reinstalltorch'. Pleae remove manually.")
 
 try:
     clone_git_repos(offline)

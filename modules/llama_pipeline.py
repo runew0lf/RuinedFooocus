@@ -103,7 +103,10 @@ class pipeline:
             params.endpoint_metrics = False
             params.use_jinja = True
 
-            self.llm = xlc.Server(params) # FIXME hide output?
+            try:
+                self.llm = xlc.Server(params)
+            except:
+                print(f"ERROR: xlc.Servcer({params})")
 
         self.embeddings = None
 
