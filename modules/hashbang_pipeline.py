@@ -8,9 +8,6 @@ import json
 from comfy.samplers import KSampler
 
 
-# Copy this file, add suitable code and add logic to modules/pipelines.py to select it
-
-
 class pipeline:
     pipeline_type = ["hashbang"]
 
@@ -168,6 +165,15 @@ class pipeline:
                     pass
                 except Exception as e:
                     print(f"ERROR: {str(e)}")
+
+            case "branch":
+                import pygit2
+                repo = pygit2.Repository(".")
+                try:
+                    repo.checkout(r.branches[data])
+                    print(f"INFO: Switched to branch {data}. Please restart.")
+                except Exception as e:
+                    print("ERROR: {e}")
 
             case _:
                 print(f"ERROR: Unknown command #!{cmd}")
