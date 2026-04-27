@@ -731,4 +731,4 @@ class pipeline:
             loop=0,
         )
 
-        return [str(filename.with_suffix(".mp4"))]
+        return [str(filename.with_suffix(".gif"))]
