@@ -39,21 +39,20 @@ from nodes import (
     VAEDecode,
 )
 
-from comfy_extras.nodes_custom_sampler import SamplerCustomAdvanced, RandomNoise, BasicScheduler, KSamplerSelect, BasicGuider, CFGGuider, RandomNoise
-from comfy_extras.nodes_lt import EmptyLTXVLatentVideo, LTXVImgToVideo, LTXVConditioning, LTXVScheduler, LTXVConcatAVLatent
+from comfy_extras.nodes_custom_sampler import SamplerCustomAdvanced, Noise_RandomNoise, BasicScheduler, KSamplerSelect, BasicGuider, CFGGuider
+from comfy_extras.nodes_lt import EmptyLTXVLatentVideo, LTXVImgToVideo, LTXVConditioning, LTXVScheduler, LTXVConcatAVLatent, LTXVSeparateAVLatent
 from comfy_extras.nodes_lt import ModelSamplingLTXV
-from comfy_extras.nodes_lt_audio import LTXVEmptyLatentAudio
-from comfy_extras.nodes_flux import FluxGuidance
-
+from comfy_extras.nodes_lt_audio import LTXVEmptyLatentAudio, LTXVAudioVAEDecode
+from comfy_extras.nodes_video import CreateVideo
+from comfy_api.latest import Types
 
 class pipeline:
     pipeline_type = ["ltx2_video"]
 
     class StableDiffusionModel:
-        def __init__(self, unet, vae, clip, clip_vision, audio_vae=None):
+        def __init__(self, clip, unet, vae, audio_vae=None):
             self.clip = clip
             self.unet = unet
-            self.clip_vision = clip_vision
             self.vae = vae
             self.audio_vae = audio_vae
 
@@ -64,6 +63,8 @@ class pipeline:
                 self.clip.cond_stage_model.to("meta")
             if self.vae is not None:
                 self.vae.first_stage_model.to("meta")
+            if self.audio_vae is not None:
+                self.audio_vae.first_stage_model.to("meta")
 
     clip = None
     vae = None
@@ -187,24 +188,21 @@ class pipeline:
                         return
 
                     print(f"Loading CLIP: {clip_names}")
-#                    if all(name.endswith(".safetensors") for name in clip_paths):
-#                        model_options = {}
-#                        device = comfy.model_management.get_torch_device()
-#                        if device == "cpu":
-#                            model_options["load_device"] = model_options["offload_device"] = torch.device("cpu")
-#                        clip = comfy.sd.load_clip(ckpt_paths=clip_paths, clip_type=clip_type, model_options=model_options)
-#                    else:
-                    if True:
+                    if all(name.endswith(".safetensors") for name in clip_paths):
+                        model_options = {}
+                        device = comfy.model_management.get_torch_device()
+                        if device == "cpu":
+                            model_options["load_device"] = model_options["offload_device"] = torch.device("cpu")
+                        clip = comfy.sd.load_clip(ckpt_paths=clip_paths, clip_type=clip_type, model_options=model_options)
+                    else:
                         clip_loader = DualCLIPLoaderGGUF()
-                        print(f"DEBUG: load_data")
-                        self.logger.setLevel(self.logger.ERROR)
+                        self.logger.setLevel(logging.ERROR)
                         clip = clip_loader.load_patcher(
                             clip_paths,
                             comfy.sd.CLIPType.LTXV,
                             clip_loader.load_data(clip_paths)
                         )
-                        self.logger.setLevel(self.logger.WARNING)
-                        print(f"DEBUG: clip done: {type(clip)}")
+                        self.logger.setLevel(logging.WARNING)
 
                     vae_path = path_manager.get_folder_file_path(
                         "vae",
@@ -224,8 +222,6 @@ class pipeline:
                     else:
                         sd, metadata = comfy.utils.load_torch_file(str(vae_path), return_metadata=True)
                     vae = comfy.sd.VAE(sd=sd, metadata=metadata)
-                    print(f"DEBUG: video vae: {type(vae)}")
-
 
                     print(f"Loading Audio VAE: {audio_vae_name}")
                     if str(vae_path).endswith(".gguf"):
@@ -236,7 +232,7 @@ class pipeline:
 
                     # https://github.com/kijai/ComfyUI-KJNodes/blob/main/nodes/nodes.py#L2453C1-L2476C22
                     try:
-                        sd = comfy.utils.state_dict_prefix_replace(
+                        sd_audio = comfy.utils.state_dict_prefix_replace(
                             dict(sd), {"audio_vae.": "autoencoder.", "vocoder.": "vocoder."}, filter_keys=True
                         )
                         audio_vae = VAE(sd=sd_audio, metadata=metadata)
@@ -244,7 +240,6 @@ class pipeline:
                     except Exception:
                         from comfy.ldm.lightricks.vae.audio_vae import AudioVAE
                         audio_vae = AudioVAE(sd, metadata)
-                    print(f"DEBUG: audio vae: {type(audio_vae)}")
 
                     clip_vision = None
                 except Exception as e:
@@ -272,7 +267,7 @@ class pipeline:
             self.model_hash = ""
         else:
             self.model_base = self.StableDiffusionModel(
-                unet=unet, clip=None, vae=vae, clip_vision=clip_vision
+                unet=unet, clip=clip, vae=vae, audio_vae=audio_vae
             )
             self.clip = clip
             self.vae = vae
@@ -334,7 +329,7 @@ class pipeline:
                     unet=unet,
                     clip=None,
                     vae=None,
-                    clip_vision=None,
+                    audio_vae=None,
                 )
                 loaded_loras += [(name, weight)]
             except:
@@ -518,10 +513,11 @@ class pipeline:
     ):
         seed = gen_data["seed"] if isinstance(gen_data["seed"], int) else random.randint(1, 2**32)
         #frane_rate = settings.default_settings.get("fps", 24)
-        gen_data["frame_rate"] = 24
-        frame_number = (int(gen_data["original_image_number"]) * 8) + 1
-        gen_data["width"] = int(gen_data["width"]) % 32
-        gen_data["height"] = int(gen_data["height"]) % 32
+        gen_data["frame_rate"] = 24.0
+        #frame_number = (int(gen_data["original_image_number"]) * 8) + 1
+        frame_number = (int(gen_data["original_image_number"]) * 24) + 1 # Generate "Frame number" seconds of video
+        gen_data["width"] = (gen_data["width"] // 32) * 32
+        gen_data["height"] = (gen_data["height"] // 32) * 32
 
         if callback is not None:
             worker.add_result(
@@ -537,6 +533,7 @@ class pipeline:
         negative_prompt = gen_data["negative_prompt"]
         clip_skip = 1
 
+        print("Encoding prompts.")
         self.textencode("+", positive_prompt, clip_skip)
         self.textencode("-", negative_prompt, clip_skip)
 
@@ -572,7 +569,7 @@ class pipeline:
         if gen_data["input_image"]:
             image = np.array(gen_data["input_image"]).astype(np.float32) / 255.0
             image = torch.from_numpy(image)[None,]
-            (positive, negative, latent_image) = LTXVImgToVideo().generate(
+            (positive, negative, video_latent) = LTXVImgToVideo().generate(
                 positive = self.conditions["+"]["cache"],
                 negative = self.conditions["-"]["cache"],
                 image = image,
@@ -584,8 +581,8 @@ class pipeline:
                 strength = 1,
             )
         else:
-            # latent_image
-            latent_image = EmptyLTXVLatentVideo().generate(
+            # Video latent
+            video_latent = EmptyLTXVLatentVideo().generate(
                 width = gen_data["width"],
                 height = gen_data["height"],
                 length = frame_number,
@@ -593,35 +590,28 @@ class pipeline:
             )[0]
             positive = self.conditions["+"]["cache"]
 
-        # * EmptyLTXVLatentVideo(w, h, l) + LTXV Empty Latent Audio -> LTXVConatAVLatent
-#        audio_vae_name = settings.default_settings.get("vae_audio_ltxv2", "vae/LTX2_audio_vae_bf16.safetensors")
-#        audio_vae_path = path_manager.get_folder_file_path(
-#            "vae",
-#            audio_vae_name,
-#            default = os.path.join(path_manager.model_paths["vae_path"], audio_vae_name)
-#        )
-#
-#        print(f"Loading Audio VAE: {audio_vae_name}")
-#        audio_vae = comfy.utils.load_torch_file(audio_vae_path, safe_load=True)
+        # Audio latent
 
-        empty_audio = LTXVEmptyLatentAudio().execute(
+        audio_latent = LTXVEmptyLatentAudio().execute(
             audio_vae = self.audio_vae,
             frames_number = frame_number,
             frame_rate = gen_data["frame_rate"],
             batch_size = 1,
         )[0]
-        video_latent = LTXVConcatAVLatent().execute(
-            video_latent = latent_image,
-            audio_latent = empty_audio,
+
+        # Combine to video
+        latent = LTXVConcatAVLatent().execute(
+            video_latent = video_latent,
+            audio_latent = audio_latent,
         )[0]
 
         negative = self.conditions["-"]["cache"]
 
         # LTXVConditioning
-        positive, negative = LTXVConditioning().append(
+        positive, negative = LTXVConditioning().execute(
             positive = positive,
             negative = negative,
-            frame_rate = gen_data("frame_rate")
+            frame_rate = gen_data["frame_rate"],
         )
 
         # Sampler
@@ -630,14 +620,23 @@ class pipeline:
         )[0]
 
         # Sigmas
-        sigmas = LTXVScheduler().get_sigmas(
+        sigmas = LTXVScheduler().execute(
             steps = gen_data["steps"],
             max_shift = 2.05,
             base_shift = 0.95,
             stretch = True,
             terminal = 0.1,
-            latent = latent_image
+            latent = latent
         )[0]
+
+        guider = CFGGuider().execute(
+            model = self.model_base_patched.unet,
+            cfg = float(gen_data["cfg"]),
+            positive = positive,
+            negative = negative,
+        )[0]
+
+        noise = Noise_RandomNoise(seed)
 
         worker.add_result(
             gen_data["task_id"],
@@ -645,17 +644,13 @@ class pipeline:
             (-1, f"Generating ...", None)
         )
 
-        samples = SamplerCustomAdvanced().sample(
-            model=self.model_base_patched.unet,
-            add_noise=True,
-            noise_seed=seed,
-            cfg=float(gen_data["cfg"]),
-            positive=positive,
-            negative=negative,
-            sampler=ksampler,
-            sigmas=sigmas,
-            latent_image=latent_image,
-        )[0]
+        denoised_output = SamplerCustomAdvanced().execute(
+            noise = noise,
+            guider = guider,
+            sampler = ksampler,
+            sigmas = sigmas,
+            latent_image = latent,
+        )
 
         if callback is not None:
             worker.add_result(
@@ -664,8 +659,16 @@ class pipeline:
                 (-1, f"VAE Decoding ...", None)
             )
 
+        #video_latent, audio_latent = LTXVSeparateAVLatent().execute(
+        samples = LTXVSeparateAVLatent().execute(
+            av_latent = denoised_output[1],
+        )
+
+        # Decode video
+
+        print(f"VAE decode video.")
         decoded_latent = VAEDecodeTiled().decode(
-            samples=samples,
+            samples=samples[0],
             tile_size=512,
             overlap=64,
             temporal_size=64,
@@ -673,11 +676,21 @@ class pipeline:
             vae=self.model_base_patched.vae,
         )[0]
 
-        pil_images = []
-        for image in decoded_latent:
-            i = 255. * image.cpu().numpy()
-            img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
-            pil_images.append(img)
+        # Decode audio
+
+        print(f"VAE decode audio.")
+        audio = LTXVAudioVAEDecode().execute(
+            samples = samples[1],
+            audio_vae = self.audio_vae,
+        )[0]
+
+        # Create Video
+
+        video = CreateVideo().execute(
+            images = decoded_latent,
+            fps = gen_data["frame_rate"],
+            audio = audio,
+        )[0]
 
         if callback is not None:
             worker.add_result(
@@ -686,31 +699,36 @@ class pipeline:
                 (-1, f"Saving ...", None)
             )
 
-        file = generate_temp_filename(
-            folder=path_manager.model_paths["temp_outputs_path"], extension="gif"
+        filename = generate_temp_filename(
+            folder=path_manager.model_paths["temp_outputs_path"], extension="tmp"
         )
-        os.makedirs(os.path.dirname(file), exist_ok=True)
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
 
-        fps=12.0
-        compress_level=9 # Min = 0, Max = 9
+        codec = "auto"
+        saved_metadata = {"prompt": gen_data["positive_prompt"]} # FIXME
+        video.save_to(
+            filename.with_suffix(".mp4"),
+            format = Types.VideoContainer.MP4,
+            codec = Types.VideoCodec(codec),
+            metadata = saved_metadata
+        )
+
+        pil_images = []
+        for image in decoded_latent:
+            i = 255. * image.cpu().numpy()
+            img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
+            pil_images.append(img)
 
         # Save GIF
+        compress_level=9 # Min = 0, Max = 9
         pil_images[0].save(
-            file,
+            filename.with_suffix(".gif"),
             compress_level=compress_level,
             save_all=True,
-            duration=int(1000.0/fps),
+            duration=int(1000.0/gen_data["frame_rate"]),
             append_images=pil_images[1:],
             optimize=True,
             loop=0,
         )
 
-        # Save mp4
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        mp4_file = file.with_suffix(".mp4")
-        out = cv2.VideoWriter(mp4_file, fourcc, fps, (gen_data["width"], gen_data["height"]))
-        for frame in pil_images:
-            out.write(cv2.cvtColor(np.asarray(frame), cv2.COLOR_BGR2RGB))
-        out.release()
-
-        return [file]
+        return [str(filename.with_suffix(".mp4"))]

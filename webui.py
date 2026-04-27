@@ -44,7 +44,6 @@ comfy.cli_args.args.fp16_text_enc = args.fp16_text_enc
 comfy.cli_args.args.fp32_text_enc = args.fp32_text_enc
 comfy.cli_args.args.bf16_text_enc = args.bf16_text_enc
 
-# FIXME: Should brobably also check directml and other things...
 if torch_platform == "cpu":
     comfy.cli_args.args.cpu = True
 if args.directml is not None:

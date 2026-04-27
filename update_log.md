@@ -1,4 +1,5 @@
 ### development
+* [LTXV 2.3](https://huggingface.co/Lightricks/LTX-2.3) support
 * Code cleanup
 
 ### 26.04.15
