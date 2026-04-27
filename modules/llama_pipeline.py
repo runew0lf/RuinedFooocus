@@ -106,7 +106,7 @@ class pipeline:
             try:
                 self.llm = xlc.Server(params)
             except:
-                print(f"ERROR: xlc.Servcer({params})")
+                print(f"ERROR: xlc.Server({params})")
 
         self.embeddings = None
 
