@@ -6,9 +6,10 @@ import einops
 import traceback
 import cv2
 import logging
+import json
 
 import modules.async_worker as worker
-from modules.util import generate_temp_filename
+from modules.util import generate_temp_filename, TimeIt, get_checkpoint_hashes, get_lora_hashes
 from PIL import Image
 
 import os
@@ -23,7 +24,9 @@ from modules.pipeline_utils import (
 )
 
 import comfy.utils
+from comfy.sample import fix_empty_latent_channels
 from comfy.sd import load_checkpoint_guess_config
+from latent_preview import get_previewer
 from tqdm import tqdm
 
 from comfyui_gguf.nodes import gguf_sd_loader as load_gguf_sd, DualCLIPLoaderGGUF, GGUFModelPatcher, UnetLoaderGGUF
@@ -360,151 +363,6 @@ class pipeline:
         update = True
         return update
 
-    # From comfyui
-    @torch.no_grad()
-    def vae_decode_fake(self, latents):
-        # FIXME get this from the comfy code
-        
-        self.latent_rgb_factors = [
-            [ 1.1202e-02, -6.3815e-04, -1.0021e-02],
-            [ 8.6031e-02,  6.5813e-02,  9.5409e-04],
-            [-1.2576e-02, -7.5734e-03, -4.0528e-03],
-            [ 9.4063e-03, -2.1688e-03,  2.6093e-03],
-            [ 3.7636e-03,  1.2765e-02,  9.1548e-03],
-            [ 2.1024e-02, -5.2973e-03,  3.4373e-03],
-            [-8.8896e-03, -1.9703e-02, -1.8761e-02],
-            [-1.3160e-02, -1.0523e-02,  1.9709e-03],
-            [-1.5152e-03, -6.9891e-03, -7.5810e-03],
-            [-1.7247e-03,  4.6560e-04, -3.3839e-03],
-            [ 1.3617e-02,  4.7077e-03, -2.0045e-03],
-            [ 1.0256e-02,  7.7318e-03,  1.3948e-02],
-            [-1.6108e-02, -6.2151e-03,  1.1561e-03],
-            [ 7.3407e-03,  1.5628e-02,  4.4865e-04],
-            [ 9.5357e-04, -2.9518e-03, -1.4760e-02],
-            [ 1.9143e-02,  1.0868e-02,  1.2264e-02],
-            [ 4.4575e-03,  3.6682e-05, -6.8508e-03],
-            [-4.5681e-04,  3.2570e-03,  7.7929e-03],
-            [ 3.3902e-02,  3.3405e-02,  3.7454e-02],
-            [-2.3001e-02, -2.4877e-03, -3.1033e-03],
-            [ 5.0265e-02,  3.8841e-02,  3.3539e-02],
-            [-4.1018e-03, -1.1095e-03,  1.5859e-03],
-            [-1.2689e-01, -1.3107e-01, -2.1005e-01],
-            [ 2.6276e-02,  1.4189e-02, -3.5963e-03],
-            [-4.8679e-03,  8.8486e-03,  7.8029e-03],
-            [-1.6610e-03, -4.8597e-03, -5.2060e-03],
-            [-2.1010e-03,  2.3610e-03,  9.3796e-03],
-            [-2.2482e-02, -2.1305e-02, -1.5087e-02],
-            [-1.5753e-02, -1.0646e-02, -6.5083e-03],
-            [-4.6975e-03,  5.0288e-03, -6.7390e-03],
-            [ 1.1951e-02,  2.0712e-02,  1.6191e-02],
-            [-6.3704e-03, -8.4827e-03, -9.5483e-03],
-            [ 7.2610e-03, -9.9326e-03, -2.2978e-02],
-            [-9.1904e-04,  6.2882e-03,  9.5720e-03],
-            [-3.7178e-02, -3.7123e-02, -5.6713e-02],
-            [-1.3373e-01, -1.0720e-01, -5.3801e-02],
-            [-5.3702e-03,  8.1256e-03,  8.8397e-03],
-            [-1.5247e-01, -2.1437e-01, -2.1843e-01],
-            [ 3.1441e-02,  7.0335e-03, -9.7541e-03],
-            [ 2.1528e-03, -8.9817e-03, -2.1023e-02],
-            [ 3.8461e-03, -5.8957e-03, -1.5014e-02],
-            [-4.3470e-03, -1.2940e-02, -1.5972e-02],
-            [-5.4781e-03, -1.0842e-02, -3.0204e-03],
-            [-6.5347e-03,  3.0806e-03, -1.0163e-02],
-            [-5.0414e-03, -7.1503e-03, -8.9686e-04],
-            [-8.5851e-03, -2.4351e-03,  1.0674e-03],
-            [-9.0016e-03, -9.6493e-03,  1.5692e-03],
-            [ 5.0914e-03,  1.2099e-02,  1.9968e-02],
-            [ 1.3758e-02,  1.1669e-02,  8.1958e-03],
-            [-1.0518e-02, -1.1575e-02, -4.1307e-03],
-            [-2.8410e-02, -3.1266e-02, -2.2149e-02],
-            [ 2.9336e-03,  3.6511e-02,  1.8717e-02],
-            [-1.6703e-02, -1.6696e-02, -4.4529e-03],
-            [ 4.8818e-02,  4.0063e-02,  8.7410e-03],
-            [-1.5066e-02, -5.7328e-04,  2.9785e-03],
-            [-1.7613e-02, -8.1034e-03,  1.3086e-02],
-            [-9.2633e-03,  1.0803e-02, -6.3489e-03],
-            [ 3.0851e-03,  4.7750e-04,  1.2347e-02],
-            [-2.2785e-02, -2.3043e-02, -2.6005e-02],
-            [-2.4787e-02, -1.5389e-02, -2.2104e-02],
-            [-2.3572e-02,  1.0544e-03,  1.2361e-02],
-            [-7.8915e-03, -1.2271e-03, -6.0968e-03],
-            [-1.1478e-02, -1.2543e-03,  6.2679e-03],
-            [-5.4229e-02,  2.6644e-02,  6.3394e-03],
-            [ 4.4216e-03, -7.3338e-03, -1.0464e-02],
-            [-4.5013e-03,  1.6082e-03,  1.4420e-02],
-            [ 1.3673e-02,  8.8877e-03,  4.1253e-03],
-            [-1.0145e-02,  9.0072e-03,  1.5695e-02],
-            [-5.6234e-03,  1.1847e-03,  8.1261e-03],
-            [-3.7171e-03, -5.3538e-03,  1.2590e-03],
-            [ 2.9476e-02,  2.1424e-02,  3.0424e-02],
-            [-3.4925e-02, -2.4340e-02, -2.5316e-02],
-            [-3.4127e-02, -2.2406e-02, -1.0589e-02],
-            [-1.7342e-02, -1.3249e-02, -1.0719e-02],
-            [-2.1478e-03, -8.6051e-03, -2.9878e-03],
-            [ 1.2089e-03, -4.2391e-03, -6.8569e-03],
-            [ 9.0411e-04, -6.6886e-03, -6.7547e-05],
-            [ 1.6048e-02, -1.0057e-02, -2.8929e-02],
-            [ 1.2290e-03,  1.0163e-02,  1.8861e-02],
-            [ 1.7264e-02,  2.7257e-04,  1.3785e-02],
-            [-1.3482e-02, -3.6427e-03,  6.7481e-04],
-            [ 4.6782e-03, -5.2423e-03,  2.4467e-03],
-            [-5.9113e-03, -6.2244e-03, -1.8162e-03],
-            [ 1.5496e-02,  1.4582e-02,  1.9514e-03],
-            [ 7.4958e-03,  1.5886e-03, -8.2305e-03],
-            [ 1.9086e-02,  1.6360e-03, -3.9674e-03],
-            [-5.7021e-03, -2.7307e-03, -4.1066e-03],
-            [ 1.7450e-03,  1.4602e-02,  2.5794e-02],
-            [-8.2788e-04,  2.2902e-03,  4.5161e-03],
-            [ 1.1632e-02,  8.9193e-03, -7.2813e-03],
-            [ 7.5721e-03,  2.6784e-03,  1.1393e-02],
-            [ 5.1939e-03,  3.6903e-03,  1.4049e-02],
-            [-1.8383e-02, -2.2529e-02, -2.4477e-02],
-            [ 5.8842e-04, -5.7874e-03, -1.4770e-02],
-            [-1.6125e-02, -8.6101e-03, -1.4533e-02],
-            [ 2.0540e-02,  2.0729e-02,  6.4338e-03],
-            [ 3.3587e-03, -1.1226e-02, -1.6444e-02],
-            [-1.4742e-03, -1.0489e-02,  1.7097e-03],
-            [ 2.8130e-02,  2.3546e-02,  3.2791e-02],
-            [-1.8532e-02, -1.2842e-02, -8.7756e-03],
-            [-8.0533e-03, -1.0771e-02, -1.7536e-02],
-            [-3.9009e-03,  1.6150e-02,  3.3359e-02],
-            [-7.4554e-03, -1.4154e-02, -6.1910e-03],
-            [ 3.4734e-03, -1.1370e-02, -1.0581e-02],
-            [ 1.1476e-02,  3.9281e-03,  2.8231e-03],
-            [ 7.1639e-03, -1.4741e-03, -3.8066e-03],
-            [ 2.2250e-03, -8.7552e-03, -9.5719e-03],
-            [ 2.4146e-02,  2.1696e-02,  2.8056e-02],
-            [-5.4365e-03, -2.4291e-02, -1.7802e-02],
-            [ 7.4263e-03,  1.0510e-02,  1.2705e-02],
-            [ 6.2669e-03,  6.2658e-03,  1.9211e-02],
-            [ 1.6378e-02,  9.4933e-03,  6.6971e-03],
-            [ 1.7173e-02,  2.3601e-02,  2.3296e-02],
-            [-1.4568e-02, -9.8279e-03, -1.1556e-02],
-            [ 1.4431e-02,  1.4430e-02,  6.6362e-03],
-            [-6.8230e-03,  1.8863e-02,  1.4555e-02],
-            [ 6.1156e-03,  3.4700e-03, -2.6662e-03],
-            [-2.6983e-03, -5.9402e-03, -9.2276e-03],
-            [ 1.0235e-02,  7.4173e-03, -7.6243e-03],
-            [-1.3255e-02,  1.9322e-02, -9.2153e-04],
-            [ 2.4222e-03, -4.8039e-03, -1.5759e-02],
-            [ 2.6244e-02,  2.5951e-02,  2.0249e-02],
-            [ 1.5711e-02,  1.8498e-02,  2.7407e-03],
-            [-2.1714e-03,  4.7214e-03, -2.2443e-02],
-            [-7.4747e-03,  7.4166e-03,  1.4430e-02],
-            [-8.3906e-03, -7.9776e-03,  9.7927e-03],
-            [ 3.8321e-02,  9.6622e-03, -1.9268e-02],
-            [-1.4605e-02, -6.7032e-03,  3.9675e-03]
-        ]
-        latent_rgb_factors_bias = [-0.0571, -0.1657, -0.2512]
-
-        weight = torch.tensor(latent_rgb_factors, device=latents.device, dtype=latents.dtype).transpose(0, 1)[:, :, None, None, None]
-        bias = torch.tensor(latent_rgb_factors_bias, device=latents.device, dtype=latents.dtype)
-
-        images = torch.nn.functional.conv3d(latents, weight, bias=bias, stride=1, padding=0, dilation=1, groups=1)
-        images = images.clamp(0.0, 1.0)
-
-        return images
-
     @torch.inference_mode()
     def process(
         self,
@@ -533,26 +391,33 @@ class pipeline:
         negative_prompt = gen_data["negative_prompt"]
         clip_skip = 1
 
-        print("Encoding prompts.")
-        self.textencode("+", positive_prompt, clip_skip)
-        self.textencode("-", negative_prompt, clip_skip)
+        with TimeIt("Text encoding"):
+            self.textencode("+", positive_prompt, clip_skip)
+            self.textencode("-", negative_prompt, clip_skip)
 
         pbar = comfy.utils.ProgressBar(gen_data["steps"])
 
         def callback_function(step, x0, x, total_steps):
-            y = self.vae_decode_fake(x0)
-            y = (y * 255.0).detach().cpu().numpy().clip(0, 255).astype(np.uint8)
-            y = einops.rearrange(y, 'b c t h w -> (b h) (t w) c')
-            # Skip callback() since we'll just confuse the preview grid and push updates outselves
+            previewer = get_previewer(self.model_base_patched.unet.load_device, self.model_base_patched.unet.model.latent_format)
+
+            if previewer:
+                preview_bytes = previewer.decode_latent_to_preview_image(preview_format, x0)
+
+                y = (preview_buytes * 255.0).detach().cpu().numpy().clip(0, 255).astype(np.uint8)
+                y = einops.rearrange(y, 'b c t h w -> (b h) (t w) c')
+
+                maxw = 1920
+                maxh = 1080
+                image = Image.fromarray(y)
+                ow, oh = image.size
+                scale = min(maxh / oh, maxw / ow)
+                image = image.resize((int(ow * scale), int(oh * scale)), Image.LANCZOS)
+            else:
+                image = None
+
+#            pbar.update_absolute(step + 1, total_steps, preview_bytes)
+
             status = "Generating video"
-
-            maxw = 1920
-            maxh = 1080
-            image = Image.fromarray(y)
-            ow, oh = image.size
-            scale = min(maxh / oh, maxw / ow)
-            image = image.resize((int(ow * scale), int(oh * scale)), Image.LANCZOS)
-
             worker.add_result(
                 gen_data["task_id"],
                 "preview",
@@ -563,6 +428,8 @@ class pipeline:
                 )
             )
             pbar.update_absolute(step + 1, total_steps, None)
+
+        print("Setting up latents and getting ready to sample.")
 
         # latent_image
         # t2v or i2v?
@@ -644,13 +511,56 @@ class pipeline:
             (-1, f"Generating ...", None)
         )
 
-        denoised_output = SamplerCustomAdvanced().execute(
-            noise = noise,
-            guider = guider,
-            sampler = ksampler,
-            sigmas = sigmas,
-            latent_image = latent,
+        #
+        # Sample
+        #
+
+        #denoised_output = SamplerCustomAdvanced().execute(
+        #    noise = noise,
+        #    guider = guider,
+        #    sampler = ksampler,
+        #    sigmas = sigmas,
+        #    latent_image = latent,
+        #)
+
+        latent_image = latent["samples"]
+        latent = latent.copy()
+        latent_image = fix_empty_latent_channels(guider.model_patcher, latent_image, latent.get("downscale_ratio_spacial", None))
+        latent["samples"] = latent_image
+
+        noise_mask = None
+        if "noise_mask" in latent:
+            noise_mask = latent["noise_mask"]
+
+        x0_output = {}
+        #callback = latent_preview.prepare_callback(guider.model_patcher, sigmas.shape[-1] - 1, x0_output)
+
+        samples = guider.sample(
+            noise.generate_noise(latent),
+            latent_image,
+            ksampler,
+            sigmas,
+            denoise_mask=noise_mask,
+            callback=callback_function,
+            disable_pbar=False,
+            seed=noise.seed,
         )
+        samples = samples.to(comfy.model_management.intermediate_device())
+
+        out = latent.copy()
+        out.pop("downscale_ratio_spacial", None)
+        out["samples"] = samples
+        if "x0" in x0_output:
+            x0_out = guider.model_patcher.model.process_latent_out(x0_output["x0"].cpu())
+            if samples.is_nested:
+                latent_shapes = [x.shape for x in samples.unbind()]
+                x0_out = comfy.nested_tensor.NestedTensor(comfy.utils.unpack_latents(x0_out, latent_shapes))
+            denoised_output = latent.copy()
+            denoised_output["samples"] = x0_out
+        else:
+            denoised_output = out
+
+
 
         if callback is not None:
             worker.add_result(
@@ -661,7 +571,7 @@ class pipeline:
 
         #video_latent, audio_latent = LTXVSeparateAVLatent().execute(
         samples = LTXVSeparateAVLatent().execute(
-            av_latent = denoised_output[1],
+            av_latent = denoised_output,
         )
 
         # Decode video
@@ -704,13 +614,42 @@ class pipeline:
         )
         os.makedirs(os.path.dirname(filename), exist_ok=True)
 
+        # Save MP4
         codec = "auto"
-        saved_metadata = {"prompt": gen_data["positive_prompt"]} # FIXME
+        try:
+            loras = []
+            for lora_data in gen_data["loras"] if gen_data["loras"] is not None else []:
+                if len(lora_data[0]) == 64 and all(c in '0123456789abcdefABCDEF' for c in lora_data[0]): # Looks like sha256?
+                    hash = lora_data[0]
+                else:
+                    hash = None
+                w, l  = lora_data[1].split(" - ", 1)
+                if not l == "None":
+                    loras.append({"name": l, "weight": float(w), "hash": hash})
+            data = {
+                "Prompt": gen_data["positive_prompt"],
+                "Negative": gen_data["negative_prompt"],
+                "steps": gen_data["steps"],
+                "cfg": gen_data["cfg"],
+                "width": gen_data["width"],
+                "height": gen_data["height"],
+                "seed": abs(int(gen_data["seed"])),
+                "sampler_name": gen_data["sampler_name"],
+                "scheduler": gen_data["scheduler"],
+                "base_model_name": gen_data["base_model_name"],
+                "base_model_hash": get_checkpoint_hashes(gen_data["base_model_name"])['SHA256'],
+                "loras": [[f"{get_lora_hashes(lora['name'])['SHA256']}", f"{lora['weight']} - {lora['name']}"] for lora in loras],
+                "software": "RuinedFooocus",
+            }
+        except:
+            data = {"prompt": gen_data["positive_prompt"], "software": "RuinedFooocus"}
+        metadata = {"metadata": json.dumps(data)}
+
         video.save_to(
             filename.with_suffix(".mp4"),
             format = Types.VideoContainer.MP4,
             codec = Types.VideoCodec(codec),
-            metadata = saved_metadata
+            metadata = metadata
         )
 
         pil_images = []
