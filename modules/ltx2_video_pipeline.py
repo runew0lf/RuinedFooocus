@@ -370,10 +370,9 @@ class pipeline:
         callback=None,
     ):
         seed = gen_data["seed"] if isinstance(gen_data["seed"], int) else random.randint(1, 2**32)
-        #frane_rate = settings.default_settings.get("fps", 24)
-        gen_data["frame_rate"] = 24.0
-        #frame_number = (int(gen_data["original_image_number"]) * 8) + 1
-        frame_number = (int(gen_data["original_image_number"]) * 24) + 1 # Generate "Frame number" seconds of video
+        gen_data["frame_rate"] = float(settings.default_settings.get("video_fps", 30.0"))
+        frame_number = int(gen_data["original_image_number"]) * gen_data["frame_rate"]) # Generate "Frame number" seconds of video
+        frame_number = ((frame_number // 8) * 8) + 1 # Make sure frame_number is divisible by 8 + 1
         gen_data["width"] = (gen_data["width"] // 32) * 32
         gen_data["height"] = (gen_data["height"] // 32) * 32
 
@@ -581,8 +580,8 @@ class pipeline:
             samples=samples[0],
             tile_size=512,
             overlap=64,
-            temporal_size=64,
-            temporal_overlap=5,
+            temporal_size=4096,
+            temporal_overlap=8,
             vae=self.model_base_patched.vae,
         )[0]
 
@@ -660,6 +659,7 @@ class pipeline:
             pil_images.append(img)
 
         # Save GIF
+        # FIXME: scale down, gifs are too big
         compress_level=9 # Min = 0, Max = 9
         pil_images[0].save(
             filename.with_suffix(".gif"),

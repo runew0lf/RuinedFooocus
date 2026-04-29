@@ -213,6 +213,8 @@ def create_settings():
                 add_setting("llm_hp_max_tokens", llm_hp_max_tokens)
 
                 gr.Markdown(t("# Other"))
+                video_fps = gr.Number(label="video_fps", interactive=True, placeholder=30.0, value=settings.default_settings.get("video_fps", None), minimum=0, step=0.01)
+                add_setting("video_fps", video_fps)
                 interrogator = gr.Dropdown(label=t("Default Interrogator"), interactive=True, choices=list(looks.keys()), value=settings.default_settings.get("interrogator", None),)
                 add_setting("interrogator", interrogator)
                 save_metadata = gr.Checkbox(label=t("Save Metadata"), value=settings.default_settings.get("save_metadata", True))
