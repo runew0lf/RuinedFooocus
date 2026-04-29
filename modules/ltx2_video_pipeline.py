@@ -614,6 +614,7 @@ class pipeline:
         )
         os.makedirs(os.path.dirname(filename), exist_ok=True)
 
+        print("Saving video")
         # Save MP4
         codec = "auto"
         try:
