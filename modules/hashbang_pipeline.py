@@ -169,11 +169,11 @@ class pipeline:
             case "branch":
                 import pygit2
                 repo = pygit2.Repository(".")
+                print(f"INFO: Switching to branch {data}. Please restart.")
                 try:
-                    repo.checkout(r.branches[data])
-                    print(f"INFO: Switched to branch {data}. Please restart.")
+                    repo.checkout(repo.branches[data])
                 except Exception as e:
-                    print("ERROR: {e}")
+                    print(f"ERROR: {e}")
 
             case _:
                 print(f"ERROR: Unknown command #!{cmd}")
