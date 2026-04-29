@@ -370,7 +370,7 @@ class pipeline:
         callback=None,
     ):
         seed = gen_data["seed"] if isinstance(gen_data["seed"], int) else random.randint(1, 2**32)
-        gen_data["frame_rate"] = float(settings.default_settings.get("video_fps", 30.0"))
+        gen_data["frame_rate"] = float(settings.default_settings.get("video_fps", 30.0))
         frame_number = int(gen_data["original_image_number"]) * gen_data["frame_rate"]) # Generate "Frame number" seconds of video
         frame_number = ((frame_number // 8) * 8) + 1 # Make sure frame_number is divisible by 8 + 1
         gen_data["width"] = (gen_data["width"] // 32) * 32
