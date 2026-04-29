@@ -156,15 +156,6 @@ class pipeline:
                         )
                         clip_paths.append(str(clip_path))
 
-#                        clip_name = settings.default_settings.get("clip_ltx23_mmproj", "mmproj-F16.gguf")
-#                        clip_names.append(str(clip_name))
-#                        clip_path = path_manager.get_folder_file_path(
-#                            "clip",
-#                            clip_name,
-#                            default = os.path.join(path_manager.model_paths["clip_path"], clip_name)
-#                        )
-#                        clip_paths.append(str(clip_path))
-
                         clip_name = settings.default_settings.get("clip_ltx23_text_proj", "ltx-2.3_text_projection_bf16.safetensors")
                         clip_names.append(str(clip_name))
                         clip_path = path_manager.get_folder_file_path(
@@ -173,15 +164,6 @@ class pipeline:
                             default = os.path.join(path_manager.model_paths["clip_path"], clip_name)
                         )
                         clip_paths.append(str(clip_path))
-
-#                        clip_name = settings.default_settings.get("clip_ltx23_22b_connwctors", "ltx-2.3-22b-distilled_embeddings_connectors.safetensors")
-#                        clip_names.append(str(clip_name))
-#                        clip_path = path_manager.get_folder_file_path(
-#                            "clip",
-#                            clip_name,
-#                            default = os.path.join(path_manager.model_paths["clip_path"], clip_name)
-#                        )
-#                        clip_paths.append(str(clip_path))
 
                         vae_name = settings.default_settings.get("vae_ltxv23_video", "LTX23_video_vae_bf16.safetensors")
                         audio_vae_name = settings.default_settings.get("vae_ltxv23_audio", "LTX23_audio_vae_bf16.safetensors")
@@ -301,10 +283,6 @@ class pipeline:
         loaded_loras = []
 
         model = self.model_base
-#        for name, weight in loras:
-#            if name == "None" or weight == 0:
-#                continue
-#            filename = str(shared.models.get_file("loras", name))
 
         for lora in loras:
             name = lora.get("name", "None")
@@ -414,8 +392,6 @@ class pipeline:
             else:
                 image = None
 
-#            pbar.update_absolute(step + 1, total_steps, preview_bytes)
-
             status = "Generating video"
             worker.add_result(
                 gen_data["task_id"],
@@ -430,8 +406,8 @@ class pipeline:
 
         print("Setting up latents and getting ready to sample.")
 
-        # latent_image
-        # t2v or i2v?
+        # Video latent
+        # i2v?
         if gen_data["input_image"]:
             image = np.array(gen_data["input_image"]).astype(np.float32) / 255.0
             image = torch.from_numpy(image)[None,]
@@ -447,7 +423,6 @@ class pipeline:
                 strength = 1,
             )
         else:
-            # Video latent
             video_latent = EmptyLTXVLatentVideo().generate(
                 width = gen_data["width"],
                 height = gen_data["height"],
@@ -457,7 +432,6 @@ class pipeline:
             positive = self.conditions["+"]["cache"]
 
         # Audio latent
-
         audio_latent = LTXVEmptyLatentAudio().execute(
             audio_vae = self.audio_vae,
             frames_number = frame_number,
