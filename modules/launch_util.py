@@ -25,6 +25,19 @@ dir_repos = "repositories"
 
 re_requirement = re.compile(r"\s*([-_a-zA-Z0-9]+)\s*(?:==\s*([-+_.a-zA-Z0-9]+))?\s*")
 
+
+def _pip_backend_missing_scikit_build_core(error_text: str) -> bool:
+    # Common pip/pyproject-hooks failure patterns seen in issue #289 and similar reports.
+    if "pyproject_hooks" not in error_text and "BackendUnavailable" not in error_text:
+        return False
+
+    return (
+        "Cannot import 'scikit_build_core.build'" in error_text
+        or "No module named 'scikit_build_core'" in error_text
+        or "scikit_build_core.build" in error_text
+    )
+
+
 def git_clone(url, dir, name, hash=None):
     try:
         import pygit2
@@ -114,14 +127,37 @@ def run(
     return result.stdout or ""
 
 
-def run_pip(command, desc=None, live=default_command_live):
+def run_pip(command, desc=None, live=default_command_live, _retry_scikit_build_core: bool = True):
     index_url_line = f" --index-url {index_url}" if index_url != "" else ""
-    return run(
-        f'"{python}" -m pip {command} --prefer-binary{index_url_line}',
-        desc=f"Installing {desc}",
-        errdesc=f"Couldn't install {desc}",
-        live=live,
-    )
+    try:
+        return run(
+            f'"{python}" -m pip {command} --prefer-binary{index_url_line}',
+            desc=f"Installing {desc}",
+            errdesc=f"Couldn't install {desc}",
+            live=live,
+        )
+    except RuntimeError as e:
+        if _retry_scikit_build_core and _pip_backend_missing_scikit_build_core(str(e)):
+            print(
+                "Detected missing scikit-build-core build backend. "
+                "Installing scikit-build-core and retrying..."
+            )
+            run(
+                f'"{python}" -m pip install scikit-build-core --prefer-binary{index_url_line}',
+                desc="Installing scikit-build-core (build backend)",
+                errdesc="Couldn't install scikit-build-core",
+                live=live,
+            )
+            retry_command = command
+            if "--no-build-isolation" not in command:
+                retry_command = f"{command} --no-build-isolation"
+            return run_pip(
+                retry_command,
+                desc=desc,
+                live=live,
+                _retry_scikit_build_core=False,
+            )
+        raise
 
 def pip_rm(pkgs, desc=None, live=default_command_live):
     return run(
