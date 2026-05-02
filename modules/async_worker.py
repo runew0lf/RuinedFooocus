@@ -19,7 +19,7 @@ from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 from modules.util import generate_temp_filename, TimeIt, get_checkpoint_hashes, get_lora_hashes
 import modules.pipelines
-from shared import settings, path_manager
+from shared import settings
 
 buffer = []
 outputs = []
@@ -74,30 +74,10 @@ def _process(gen_data):
                 (-1, f"Loading base model: {gen_data['base_model_name']}", None),
             ]
         )
-
-    # Check filename/hash for base_model
-    filename = shared.models.get_model_path(
-        "checkpoints",
-        name=gen_data["base_model_name"],
-        hash=gen_data.get("base_model_hash", None),
-        default=None,
-    )
-    # If filename is None: trigger model-refresh and return error
-    if filename is None:
-        print(f"ERROR: Could not load the checkpoint:")
-        return ["html/error.png"]
-    for folder in path_manager.paths.get('path_checkpoints', []): # Get a pretty name for the model if we had to use the hash to find it
-        if filename.startswith(folder):
-            gen_data['base_model_name'] = filename.removeprefix(folder).strip("\\/")
-            continue
-
-    # FIXME: is this even used???
     gen_data["modelhash"] = pipeline.load_base_model(
         gen_data["base_model_name"],
         hash=gen_data.get("base_model_hash", None),
     )
-
-
     if "silent" not in gen_data:
         outputs.append([gen_data["task_id"], "preview", (-1, f"Loading LoRA models ...", None)])
 
@@ -260,31 +240,7 @@ def _process(gen_data):
             try:
                 # Load LoRAs
                 parsed_loras, p_txt, n_txt = parse_loras(p_txt, n_txt)
-                all_loras = loras + parsed_loras
-                used_loras = []
-
-                # Get and update all lora paths/hashes
-                for lora in all_loras:
-                    name = lora.get("name", None)
-                    weight = lora.get("weight", 0)
-                    hash = lora.get("hash", None)
-                    if name is None or weight == 0:
-                        if filename is None:
-                            print(f"ERROR: Could not load LoRA: (Skipping)")
-                        continue
-
-                    filename = shared.models.get_model_path("loras", name=name, hash=hash)
-                    for folder in path_manager.paths.get('path_loras', []): # Get a pretty name for the model if we had to use the hash to find it
-                        if filename.startswith(folder):
-                            used_loras.append(
-                                    {
-                                        "name": filename.removeprefix(folder).strip("\\/"),
-                                        "weight": weight,
-                                        "hash": hash,
-                                    }
-                                )
-                            continue
-
+                used_loras = loras + parsed_loras
                 pipeline.load_loras(used_loras)
                 gen_data["positive_prompt"] = p_txt
                 gen_data["negative_prompt"] = n_txt
