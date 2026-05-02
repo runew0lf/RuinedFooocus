@@ -279,14 +279,13 @@ class pipeline:
     known_models = known_model_info.keys() # FIXME
 
     xl_base: StableDiffusionModel = None
-    xl_base_hash = ""
+    xl_base_hash = None
 
     xl_base_patched: StableDiffusionModel = None
-    xl_base_patched_hash = ""
-    xl_base_patched_extra = set()
+    xl_base_patched_hash = None
 
     xl_controlnet: StableDiffusionModel = None
-    xl_controlnet_hash = ""
+    xl_controlnet_hash = None
 
     model_info = None
     models = []
@@ -319,7 +318,7 @@ class pipeline:
         return self.known_model_info.get(unet_type, None)
 
     def load_base_model(self, name, unet_only=False, input_unet=None, hash=None):
-        if self.xl_base_hash == name and self.xl_base_patched_extra == set():
+        if self.xl_base_hash is not None and (self.xl_base_hash == name or self.xl_base_hash == hash):
             return
 
         default_name = path_manager.get_folder_file_path(
@@ -346,10 +345,9 @@ class pipeline:
             print(f"Loading base {'unet' if unet_only else 'model'}: {name}")
 
         self.xl_base = None
-        self.xl_base_hash = ""
+        self.xl_base_hash = None
         self.xl_base_patched = None
-        self.xl_base_patched_hash = ""
-        self.xl_base_patched_extra = set()
+        self.xl_base_patched_hash = None
         self.conditions = None
         self.model_info = None
         gc.collect(generation=2)
@@ -478,7 +476,8 @@ class pipeline:
                     # We got something, assume it was a unet
                     # Re-run load_base_model to get text-encoders and vae
                     self.load_base_model(
-                        filename,
+                        name,
+                        hash=hash,
                         unet_only=True,
                         input_unet=sd,
                     )
@@ -490,9 +489,9 @@ class pipeline:
         if unet == None:
             print(f"Failed to load {name}")
             self.xl_base = None
-            self.xl_base_hash = ""
+            self.xl_base_hash = None
             self.xl_base_patched = None
-            self.xl_base_patched_hash = ""
+            self.xl_base_patched_hash = None
         else:
             self.xl_base = self.StableDiffusionModel(
                 unet=unet, clip=clip, vae=vae, clip_vision=clip_vision
@@ -504,9 +503,9 @@ class pipeline:
                 self.xl_base = None
 
             if self.xl_base is not None:
-                self.xl_base_hash = name
+                self.xl_base_hash = hash if hash is not None else name
                 self.xl_base_patched = self.xl_base
-                self.xl_base_patched_hash = ""
+                self.xl_base_patched_hash = None
                 self.model_info = self.get_clip_and_vae(self.xl_base_patched.unet)
         return
 

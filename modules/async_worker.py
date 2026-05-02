@@ -74,10 +74,12 @@ def _process(gen_data):
                 (-1, f"Loading base model: {gen_data['base_model_name']}", None),
             ]
         )
-    gen_data["modelhash"] = pipeline.load_base_model(
+
+    pipeline.load_base_model(
         gen_data["base_model_name"],
         hash=gen_data.get("base_model_hash", None),
     )
+
     if "silent" not in gen_data:
         outputs.append([gen_data["task_id"], "preview", (-1, f"Loading LoRA models ...", None)])
 
