@@ -144,8 +144,9 @@ def prepare_environment(offline=False):
                 if torch_platform not in platform_index:
                     torch_platform = 'cpu'
                 run_pip(f'install {xlc_version} --index-url {platform_index[torch_platform]}', "XLlamacpp")
-        except:
+        except Exception as e:
             print("WARNING: Failed to install/update llm modules.")
+            print(e)
 
 def clone_git_repos(offline=False):
     from modules.launch_util import git_clone
