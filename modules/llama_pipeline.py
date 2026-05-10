@@ -2,8 +2,9 @@ import re
 try:
     import xllamacpp as xlc
     Llama = "xlc"
-except:
+except Exception as e:
     print("ERROR: Could not load Llama.")
+    print(e)
     Llama = None
 from txtai import Embeddings
 from modules.util import TimeIt
