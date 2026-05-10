@@ -132,7 +132,7 @@ def prepare_environment(offline=False):
             run_pip(f'install -r "{modules_file}"', "required modules")
 
         try:
-            xlc_version = "xllamacpp==0.2.1"
+            xlc_version = "xllamacpp==0.2.7"
             if REINSTALL_ALL or not is_installed(xlc_version):
                 platform_index = {
                     'cu124': 'https://xorbitsai.github.io/xllamacpp/whl/cu124',
