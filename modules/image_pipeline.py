@@ -67,6 +67,7 @@ from node_helpers import conditioning_set_values
 
 from comfy.samplers import KSampler
 from comfy.sample import fix_empty_latent_channels
+from comfy_extras.nodes_model_advanced import ModelNoiseScale
 from comfy_extras.nodes_post_processing import ImageScaleToTotalPixels
 from comfy_extras.nodes_canny import Canny
 from comfy_extras.nodes_freelunch import FreeU
@@ -221,13 +222,9 @@ class pipeline:
         "HiDreamO1": {
             "latent": "HiDreamO1",
             "clip_type": comfy.sd.CLIPType.HIDREAM, #FIXME
-            "clip_names": [ #FIXME
-                get_clip_name("clip_g"),
-                get_clip_name("clip_l"),
-                get_clip_name("clip_llama"),
-                get_clip_name("clip_t5")
-            ],
-            "vae_name": get_vae_name("vae_flux"), #FIXME
+            "clip_names": [], #FIXME
+            "vae_name": None,
+            "options": {"ModelNoiseScale": 8.0, "HiDreamO1SeamSmoothing": True}
         },
         "Lumina2": {
             "latent": "SD3",
@@ -517,6 +514,26 @@ class pipeline:
                 self.xl_base_patched = self.xl_base
                 self.xl_base_patched_hash = None
                 self.model_info = self.get_clip_and_vae(self.xl_base_patched.unet)
+
+        # Model Options
+        self.model_info = self.get_clip_and_vae(self.xl_base.unet)
+        options = self.model_info.get("options", {})
+        if options.get("ModelNoiseScale", None) is not None:
+            self.xl_base.unet = ModelNoiseScale().patch(
+                model=self.xl_base.unet,
+                noise_scale=options.get("ModelNoiseScale", 0.0),
+            )[0]
+        if options.get("HiDreamO1SeamSmoothing", False):
+            self.xl_base.unet = HiDreamO1PatchSeamSmoothing().execute(
+                model=self.xl_base.unet,
+                start_percent=0.80,
+                end_percent=1.00,
+                pattern='single_shift',
+                passes='ramp_2_4',
+                blend='median',
+                strength=1.00,
+            )[0]
+
         return
 
     def load_loras(self, loras):
