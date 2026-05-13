@@ -179,7 +179,7 @@ def _process(gen_data):
         pheight = int(height * grid_ysize / grid_max)
         if shared.state["preview_grid"] is None:
             shared.state["preview_grid"] = Image.new("RGB", (pwidth, pheight))
-        if y is not None and step == 0: # FIXME: Weird bug where the 0th step has the preview from the last image, so just skip it
+        if y is not None and step != 0: # FIXME: Weird bug where the 0th step has the preview from the last image, so just skip it
             if isinstance(y, Image.Image):
                 image = y
             elif isinstance(y, str):
