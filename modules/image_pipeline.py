@@ -516,7 +516,10 @@ class pipeline:
                 self.model_info = self.get_clip_and_vae(self.xl_base_patched.unet)
 
         # Model Options
-        self.model_info = self.get_clip_and_vae(self.xl_base.unet)
+        try:
+            self.model_info = self.get_clip_and_vae(self.xl_base.unet)
+        except:
+            return
         options = self.model_info.get("options", {})
         if options.get("ModelNoiseScale", None) is not None:
             self.xl_base.unet = ModelNoiseScale().patch(
