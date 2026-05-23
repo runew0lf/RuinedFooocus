@@ -187,6 +187,17 @@ class pipeline:
                     traceback.print_exc()
                     print(f"ERROR: {e}")
 
+            case "hf_login":
+                import huggingface_hub # requires !pip install huggingface_hub
+
+                print("INFO: Go to https://huggingface.co/settings/tokens to create an account and get a HF_TOKEN if you need one.")
+                try:
+                    huggingface_hub.login()
+                except Exception as e:
+                    import traceback
+                    traceback.print_exc()
+                    print(f"ERROR: {e}")
+
             case _:
                 print(f"ERROR: Unknown command #!{cmd}")
                 image = Image.open("html/error.png")
