@@ -61,6 +61,7 @@ from comfy_extras.nodes_sd3 import EmptySD3LatentImage
 from comfy_extras.nodes_flux import FluxKontextImageScale, EmptyFlux2LatentImage
 from comfy_extras.nodes_hunyuan import EmptyHunyuanImageLatent, EmptyHunyuanLatentVideo
 from comfy_extras.nodes_hidream_o1 import EmptyHiDreamO1LatentImage, HiDreamO1PatchSeamSmoothing
+from comfy_extras.nodes_chroma_radiance import EmptyChromaRadianceLatentImage
 from comfy_extras.nodes_edit_model import ReferenceLatent
 from comfy_extras.nodes_qwen import TextEncodeQwenImageEdit
 from node_helpers import conditioning_set_values
@@ -115,6 +116,8 @@ class pipeline:
             "clip_aura": "clip_aura.safetensors",
             "clip_g": "clip_g.safetensors",
             "clip_gemma": "gemma_2_2b_fp16.safetensors",
+            "clip_gemma2_it": "gemma_2_2b_it_bf16.safetensors",
+            "clip_gemma2_it_elm": "gemma_2_2b_it_elm_fp8_scaled.safetensor",
             "clip_gemma3": "gemma_3_4b_it_bf16.safetensors",
             "clip_jina": "jina_clip_v2_bf16.safetensors",
             "clip_l": "clip_l.safetensors",
@@ -247,6 +250,12 @@ class pipeline:
             "clip_type": comfy.sd.CLIPType.PIXART,
             "clip_names": [get_clip_name("clip_t5")],
             "vae_name": get_vae_name("vae_pixart"),
+        },
+        "PixelDiTT2I": {
+            "latent": "ChromaRadience",
+            "clip_type": comfy.sd.CLIPType.PIXELDIT,
+            "clip_names": [get_clip_name("clip_gemma")],
+            "vae_name": None,
         },
         "QwenImage": {
             "latent": "SD3",
@@ -435,17 +444,20 @@ class pipeline:
                             clip_loader.load_data(clip_paths)
                         )
 
-                    vae_path = path_manager.get_folder_file_path(
-                        "vae",
-                        model_info['vae_name'],
-                        default = os.path.join(path_manager.model_paths["vae_path"], model_info['vae_name'])
-                    )
-                    print(f"Loading VAE: {model_info['vae_name']}")
-                    if str(vae_path).endswith(".gguf"):
-                        sd = load_gguf_sd(str(vae_path))
+                    if model_info['vae_name'] is not None:
+                        vae_path = path_manager.get_folder_file_path(
+                            "vae",
+                            model_info['vae_name'],
+                            default = os.path.join(path_manager.model_paths["vae_path"], model_info['vae_name'])
+                        )
+                        print(f"Loading VAE: {model_info['vae_name']}")
+                        if str(vae_path).endswith(".gguf"):
+                            sd = load_gguf_sd(str(vae_path))
+                        else:
+                            sd = comfy.utils.load_torch_file(str(vae_path))
+                        vae = comfy.sd.VAE(sd=sd)
                     else:
-                        sd = comfy.utils.load_torch_file(str(vae_path))
-                    vae = comfy.sd.VAE(sd=sd)
+                        vae = None
 
                     clip_vision = None
                 except Exception as e:
@@ -821,6 +833,10 @@ class pipeline:
                     )[0]
                 case 'HunyuanImage':
                     latent = EmptyHunyuanImageLatent().generate(
+                        width=gen_data["width"], height=gen_data["height"], batch_size=1
+                    )[0]
+                case "ChromaRadience":
+                    latent = EmptyChromaRadianceLatentImage().execute(
                         width=gen_data["width"], height=gen_data["height"], batch_size=1
                     )[0]
                 case 'SD3':

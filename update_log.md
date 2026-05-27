@@ -1,3 +1,6 @@
+### development
+* [PixelDiT](https://huggingface.co/Comfy-Org/PixelDiT/tree/main/diffusion_models) support
+
 ### 26.05.12
 * [HiDreamO1](https://huggingface.co/Comfy-Org/HiDream-O1-Image) support
 

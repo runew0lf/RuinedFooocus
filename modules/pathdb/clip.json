@@ -39,6 +39,21 @@
         "path": "path_clip",
         "filename": "gemma_2_2b_fp16.safetensors"
     },
+    "clip/gemma_2_2b_it_bf16.safetensors": {
+        "url": "https://huggingface.co/unsloth/gemma-2-2b-it/resolve/main/model.safetensors",
+        "path": "path_clip",
+        "filename": "gemma_2_2b_it_bf16.safetensors"
+    },
+    "clip/gemma_2_2b_it_elm_bf16.safetensor": {
+        "url": "https://huggingface.co/Comfy-Org/PixelDiT/resolve/main/text_encoders/gemma_2_2b_it_elm_bf16.safetensors",
+        "path": "path_clip",
+        "filename": "gemma_2_2b_it_elm_bf16.safetensor"
+    },
+    "clip/gemma_2_2b_it_elm_fp8_scaled.safetensor": {
+        "url": "https://huggingface.co/Comfy-Org/PixelDiT/resolve/main/text_encoders/gemma_2_2b_it_elm_fp8_scaled.safetensors",
+        "path": "path_clip",
+        "filename": "gemma_2_2b_it_elm_fp8_scaled.safetensor"
+    },
     "clip/gemma-3-12b-it-qat-UD-Q4_K_XL.gguf": {
         "url": "https://huggingface.co/unsloth/gemma-3-12b-it-qat-GGUF/resolve/main/gemma-3-12b-it-qat-UD-Q4_K_XL.gguf",
         "path": "path_clip",
