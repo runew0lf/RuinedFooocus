@@ -977,14 +977,16 @@ class pipeline:
                 (-1, f"VAE decoding ...", None)
             )
 
-        decoded_latent = VAEDecode().decode(
-            samples=sampled_latent, vae=self.xl_base_patched.vae
-        )[0]
-
-        images = [
-            np.clip(255.0 * y.cpu().numpy(), 0, 255).astype(np.uint8)
-            for y in decoded_latent
-        ]
+        if self.xl_base_patched.vae is None:
+            images = [previewer.preview(samples, 0, 0)]
+        else:
+            decoded_latent = VAEDecode().decode(
+                samples=sampled_latent, vae=self.xl_base_patched.vae
+            )[0]
+            images = [
+                np.clip(255.0 * y.cpu().numpy(), 0, 255).astype(np.uint8)
+                for y in decoded_latent
+            ]
 
         shared.shared_cache["prev_image"] = images[0]
         if callback is not None:
