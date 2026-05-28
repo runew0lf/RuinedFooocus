@@ -117,7 +117,7 @@ class pipeline:
             "clip_g": "clip_g.safetensors",
             "clip_gemma": "gemma_2_2b_fp16.safetensors",
             "clip_gemma2_it": "gemma_2_2b_it_bf16.safetensors",
-            "clip_gemma2_it_elm": "gemma_2_2b_it_elm_fp8_scaled.safetensor",
+            "clip_gemma2_it_elm": "gemma_2_2b_it_elm_fp8_scaled.safetensors",
             "clip_gemma3": "gemma_3_4b_it_bf16.safetensors",
             "clip_jina": "jina_clip_v2_bf16.safetensors",
             "clip_l": "clip_l.safetensors",
@@ -254,7 +254,7 @@ class pipeline:
         "PixelDiTT2I": {
             "latent": "ChromaRadience",
             "clip_type": comfy.sd.CLIPType.PIXELDIT,
-            "clip_names": [get_clip_name("clip_gemma")],
+            "clip_names": [get_clip_name("clip_gemma2_it_elm")],
             "vae_name": "pixel_space",
         },
         "QwenImage": {
