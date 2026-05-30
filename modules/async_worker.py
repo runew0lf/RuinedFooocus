@@ -88,8 +88,8 @@ def _process(gen_data):
 
     # FIXME move this into get_perf_options?
     if (
-        gen_data["performance_selection"]
-        == shared.performance_settings.CUSTOM_PERFORMANCE
+        gen_data["performance_selection"] == shared.performance_settings.CUSTOM_PERFORMANCE or
+        gen_data["performance_selection"] == None
     ):
         steps = gen_data["custom_steps"]
     else:
