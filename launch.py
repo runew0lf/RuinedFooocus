@@ -148,6 +148,8 @@ def prepare_environment(offline=False):
             except Exception as e:
                 print("WARNING: Failed to install/update llm modules.")
                 print(e)
+        else:
+            print(f"Torch frozen...")
 
 def clone_git_repos(offline=False):
     from modules.launch_util import git_clone

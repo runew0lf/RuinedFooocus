@@ -13,7 +13,7 @@ ftfy==6.1.1
 clip_interrogator==0.6.0
 opencv-python-headless==4.11.0.86
 kornia==0.7.3
-sentencepiece==0.2.0
+sentencepiece==0.2.1
 spandrel==0.3.4
 imageio[pyav]==2.34.1 
 beautifulsoup4==4.12.3
