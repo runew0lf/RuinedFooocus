@@ -219,7 +219,7 @@ def update_results(product):
         inpaint_toggle: gr.update(value=False),
         gallery: gr.update(
             visible=True,
-            selected_index=0,
+            selected_index=None,
             allow_preview=True,
             preview=True,
             value=product,
@@ -1033,7 +1033,7 @@ with shared.gradio_root as block:
                         ),
                         lora_active_gallery: gr.update(
                             value=active,
-                            selected_index=lora_active_selected,
+                            selected_index=None,
                         ),
                         lora_keywords: gr.update(value=keywords),
                     }
