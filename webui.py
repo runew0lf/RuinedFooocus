@@ -219,7 +219,7 @@ def update_results(product):
         inpaint_toggle: gr.update(value=False),
         gallery: gr.update(
             visible=True,
-            selected_index=None,
+            selected_index=0,
             allow_preview=True,
             preview=True,
             value=product,
