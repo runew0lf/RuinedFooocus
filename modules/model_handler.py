@@ -340,12 +340,16 @@ class Models:
 
 
     def get_model_path(self, model_type, name, hash=None, default=None):
+        from shared import path_manager, settings
+
         # Look through folders for the filename
         filename = self.get_file(model_type, name)
 
         # Try looking for model using the hash
         if filename is None and hash is not None:
             filename = self.get_file_from_hash(model_type, hash)
+            if filename is not None:
+                print(f"INFO: Found {filename} from hash")
 
         # If we don't have a filename, get the default.
         if filename is None and default is not None:
@@ -354,6 +358,8 @@ class Models:
                 default,
             )
             filename = self.get_file(model_type, name)
+            if filename is not None:
+                print(f"INFO: Using {filename} (default)")
 
         if filename is None:
             print(f"Could not find file: {name}")

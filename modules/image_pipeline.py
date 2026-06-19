@@ -344,11 +344,19 @@ class pipeline:
         if self.xl_base_hash is not None and (self.xl_base_hash == name or self.xl_base_hash == hash):
             return
 
-        default_name = path_manager.get_folder_file_path(
-            "checkpoints",
-            settings.default_settings.get("base_model", "sd_xl_base_1.0_0.9vae.safetensors"),
-        )
-        default = shared.models.get_file("checkpoints", default_name)
+        self.xl_base = None
+        self.xl_base_hash = None
+        self.xl_base_patched = None
+        self.xl_base_patched_hash = None
+        self.conditions = None
+        self.model_info = None
+
+        #default_name = path_manager.get_folder_file_path(
+        #    "checkpoints",
+        #    settings.default_settings.get("base_model", "sd_xl_base_1.0_0.9vae.safetensors"),
+        #)
+        #default = shared.models.get_file("checkpoints", default_name)
+        default = None
 
         filename = shared.models.get_model_path(
             "checkpoints",
@@ -358,6 +366,7 @@ class pipeline:
         )
 
         if filename is None:
+            print(f"ERROR: Could not load checkpoint {name}")
             return
 
         if Path(filename).suffix == '.merge':
@@ -367,12 +376,6 @@ class pipeline:
         if input_unet is None: # Be quiet if we already loaded a unet
             print(f"Loading base {'unet' if unet_only else 'model'}: {name}")
 
-        self.xl_base = None
-        self.xl_base_hash = None
-        self.xl_base_patched = None
-        self.xl_base_patched_hash = None
-        self.conditions = None
-        self.model_info = None
         gc.collect(generation=2)
 
         comfy.model_management.cleanup_models()
