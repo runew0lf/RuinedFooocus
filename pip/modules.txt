@@ -33,7 +33,7 @@ tokenizers==0.22.1
 xmltodict==0.14.2
 websockets==15.0.1
 comfy-kitchen==0.2.10
-comfy-aimdo==0.4.9
+comfy-aimdo==0.4.10
 requests==2.33.1
 charset_normalizer==3.4.7
 urllib3==2.6.3

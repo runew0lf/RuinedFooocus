@@ -254,6 +254,8 @@ def create_settings():
                 add_setting("clip_qwen3_8b", clip_qwen3_8b)
                 clip_qwen3vl_8b = gr.Dropdown(label="clip_qwen3vl_8b (Ideogram4)", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_qwen3vl_8b", None),)
                 add_setting("clip_qwen3vl_8b", clip_qwen3vl_8b)
+                clip_qwen3vl_8b_scaled = gr.Dropdown(label="clip_qwen3vl_8b_scaled (Boogu-Image)", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_qwen3vl_8b_scaled", None),)
+                add_setting("clip_qwen3vl_8b_scaled", clip_qwen3vl_8b_scaled)
                 clip_oldt5 = gr.Dropdown(label="clip_oldt5 (CosmosPredict2)", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_oldt5", None),)
                 add_setting("clip_oldt5", clip_oldt5)
                 clip_t5 = gr.Dropdown(label="clip_t5 (Flux, HiDream, PixArt, SD3)", interactive=True, choices=[None]+path_manager.get_folder_list("clip"), value=settings.default_settings.get("clip_t5", None),)
