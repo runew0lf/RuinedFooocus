@@ -18,12 +18,13 @@ def create_image_gallery():
                     object_fit="contain",
                     value=browser.load_images(1)[0],
                 )
+                pages=browser.num_images_pages()[1]
                 ib_page = gr.Slider(
                     label=t("Page"),
                     value=1,
                     step=1,
                     minimum=1,
-                    maximum=browser.num_images_pages()[1],
+                    maximum=max(2, pages), # Stupid workaround to make sure max is larger than min... :|
                 )
                 ib_range = gr.Markdown()
 
