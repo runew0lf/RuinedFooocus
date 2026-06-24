@@ -1,3 +1,6 @@
+### development
+* [Krea 2](https://huggingface.co/Comfy-Org/Krea-2) support
+
 ### 26.06.21
 * Limited [Ideogram4](https://huggingface.co/ideogram-ai/ideogram-4-fp8) support
 * [Boogu-Image](https://huggingface.co/Boogu/Boogu-Image-0.1-Base) support

@@ -127,6 +127,7 @@ class pipeline:
             "clip_mistral3": "mistral_3_small_flux2_fp8.safetensors",
             "clip_qwen25": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
             "clip_qwen3_4b": "Qwen3-4B-Q4_K_M.gguf",
+            "clip_qwen3vl_4b_scaled": "qwen3vl_4b_fp8_scaled.safetensors",
             "clip_qwen3_8b": "Qwen3-8B-Q8_0.gguf",
             "clip_qwen3_06b": "qwen_3_06b_base.safetensors",
             "clip_qwen3vl_8b": "Qwen3-VL-8B-Instruct-Q5_K_M.gguf",
@@ -243,6 +244,11 @@ class pipeline:
             "clip_names": [get_clip_name("clip_qwen3vl_8b")],
             "vae_name": get_vae_name("vae_flux2")
         },
+        "Krea2": {
+            "clip_type": comfy.sd.CLIPType.KREA2,
+            "clip_names": [get_clip_name("clip_qwen3vl_4b_scaled")],
+            "vae_name": get_vae_name("vae_qwen_image"),
+        },
         "Lumina2": {
             "latent": "SD3",
             "clip_type": comfy.sd.CLIPType.LUMINA2,
@@ -326,6 +332,8 @@ class pipeline:
     def get_clip_and_vae(self, unet):
         unet_type = unet.model.__class__.__name__
 
+        #print(f"DEBUG: unet_type: {unet_type}")
+
         # Some detective work...
         if unet_type == "Lumina2" and unet.model_state_dict().get('diffusion_model.cap_embedder.1.weight', []).shape[0] == 3840:
             unet_type = "ZImage"
@@ -403,7 +411,8 @@ class pipeline:
                         unet.patch_on_device = True
                     elif input_unet is not None:
                         if isinstance(input_unet, ModelPatcher):
-                            unet = input_unet
+                            unet = GGUFModelPatcher.clone(input_unet)
+                            unet.patch_on_device = True
                         else:
                             unet = comfy.sd.load_diffusion_model_state_dict(
                                 input_unet, model_options={"custom_operations": self.ggml_ops}
@@ -492,9 +501,21 @@ class pipeline:
                 # Failed loading
                 print(f"ERROR: Failed loading {filename}: {e}")
 
+            try:
+                diffusion_model_prefix = comfy.sd.model_detection.unet_prefix_from_state_dict(sd)
+                parameters = comfy.utils.calculate_parameters(sd, diffusion_model_prefix)
+                if parameters == 0:
+                    sd = comfy.sd.load_diffusion_model(filename)
+            except:
+                sd = None
+                pass
+
             if sd is not None:
                 # Try to load as All-In-One checkpoint
-                aio = load_state_dict_guess_config(sd)
+                try:
+                    aio = load_state_dict_guess_config(sd)
+                except:
+                    aio = None
                 if isinstance(aio, tuple):
                     unet, clip, vae, clip_vision = aio
 

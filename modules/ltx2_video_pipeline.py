@@ -25,7 +25,7 @@ from modules.pipeline_utils import (
 
 import comfy.utils
 from comfy.sample import fix_empty_latent_channels
-from comfy.sd import load_checkpoint_guess_config
+from comfy.sd import load_checkpoint_guess_config, VAE
 from latent_preview import get_previewer
 from tqdm import tqdm
 
