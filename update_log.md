@@ -1,4 +1,4 @@
-### development
+### 26.06.27
 * [Krea 2](https://huggingface.co/Comfy-Org/Krea-2) support
 
 ### 26.06.21
