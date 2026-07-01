@@ -48,7 +48,7 @@ git_repos = [
         "name": "ComfyUI",
         "path": "ComfyUI",
         "url": "https://github.com/comfyanonymous/ComfyUI",
-        "hash": "603d891eaf045d726d9c23276b4428daf2977624",
+        "hash": "79c555ce6bfebf862d014e710b8d4b541ba5b896",
         "add_path": "ComfyUI",
     },
 #    {
@@ -63,6 +63,13 @@ git_repos = [
         "path": "comfyui_gguf",
         "url": "https://github.com/city96/ComfyUI-GGUF",
         "hash": "6ea2651e7df66d7585f6ffee804b20e92fb38b8a",
+        "add_path": "",
+    },
+    {
+        "name": "molbal/ComfyUI-GGUF",
+        "path": "molbal_comfyui_gguf",
+        "url": "https://github.com/molbal/ComfyUI-GGUF",
+        "hash": "73439d2120c2e465fbdf7eb9e98c17ef592e5da3",
         "add_path": "",
     },
 ]

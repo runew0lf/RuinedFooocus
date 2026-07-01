@@ -3,8 +3,10 @@ from comfy.model_patcher import ModelPatcher
 from transformers import AutoTokenizer, AutoModelForCausalLM, set_seed
 import comfy.model_management as model_management
 from transformers.generation.logits_process import LogitsProcessorList
-from comfyui_gguf.nodes import gguf_sd_loader as load_gguf_sd, DualCLIPLoaderGGUF, GGUFModelPatcher
-from comfyui_gguf.ops import GGMLOps
+#from comfyui_gguf.nodes import gguf_sd_loader as load_gguf_sd, DualCLIPLoaderGGUF, GGUFModelPatcher
+#from comfyui_gguf.ops import GGMLOps
+from molbal_comfyui_gguf.nodes import gguf_sd_loader as load_gguf_sd, DualCLIPLoaderGGUF, GGUFModelPatcher
+from molbal_comfyui_gguf.ops import GGMLOps
 from comfy.sd import CLIPType, load_clip
 from shared import path_manager, settings
 import os

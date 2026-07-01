@@ -29,8 +29,10 @@ from comfy.sd import load_checkpoint_guess_config, VAE
 from latent_preview import get_previewer
 from tqdm import tqdm
 
-from comfyui_gguf.nodes import gguf_sd_loader as load_gguf_sd, DualCLIPLoaderGGUF, GGUFModelPatcher, UnetLoaderGGUF
-from comfyui_gguf.ops import GGMLOps
+#from comfyui_gguf.nodes import gguf_sd_loader as load_gguf_sd, DualCLIPLoaderGGUF, GGUFModelPatcher, UnetLoaderGGUF
+#from comfyui_gguf.ops import GGMLOps
+from molbal_comfyui_gguf.nodes import gguf_sd_loader as load_gguf_sd, DualCLIPLoaderGGUF, GGUFModelPatcher, UnetLoaderGGUF
+from molbal_comfyui_gguf.ops import GGMLOps
 #from calcuis_gguf.pig import load_gguf_sd, GGMLOps, GGUFModelPatcher, load_gguf_clip
 #from calcuis_gguf.pig import DualClipLoaderGGUF as DualCLIPLoaderGGUF
 

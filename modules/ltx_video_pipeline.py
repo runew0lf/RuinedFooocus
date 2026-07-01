@@ -26,9 +26,10 @@ from tqdm import tqdm
 
 #from calcuis_gguf.pig import load_gguf_sd, GGMLOps, GGUFModelPatcher, load_gguf_clip
 #from calcuis_gguf.pig import DualClipLoaderGGUF as DualCLIPLoaderGGUF
-from comfyui_gguf.nodes import gguf_sd_loader as load_gguf_sd, DualCLIPLoaderGGUF, GGUFModelPatcher
-from comfyui_gguf.ops import GGMLOps
-
+#from comfyui_gguf.nodes import gguf_sd_loader as load_gguf_sd, DualCLIPLoaderGGUF, GGUFModelPatcher
+#from comfyui_gguf.ops import GGMLOps
+from molbal_comfyui_gguf.nodes import gguf_sd_loader as load_gguf_sd, DualCLIPLoaderGGUF, GGUFModelPatcher
+from molbal_comfyui_gguf.ops import GGMLOps
 
 from nodes import (
     CLIPTextEncode,

@@ -1,3 +1,6 @@
+### development
+* GGUF support for Krea 2 [models](https://huggingface.co/molbal/krea2-gguf)
+
 ### 26.06.27
 * [Krea 2](https://huggingface.co/Comfy-Org/Krea-2) support
 

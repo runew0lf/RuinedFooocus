@@ -27,9 +27,10 @@ import comfy.model_management
 from comfy.sd import load_checkpoint_guess_config
 
 #from calcuis_gguf.pig import load_gguf_sd, GGMLOps, GGUFModelPatcher, DualClipLoaderGGUF
-from comfyui_gguf.nodes import gguf_sd_loader as load_gguf_sd, GGUFModelPatcher
-from comfyui_gguf.ops import GGMLOps
-
+#from comfyui_gguf.nodes import gguf_sd_loader as load_gguf_sd, GGUFModelPatcher
+#from comfyui_gguf.ops import GGMLOps
+from molbal_comfyui_gguf.nodes import gguf_sd_loader as load_gguf_sd, GGUFModelPatcher
+from molbal_comfyui_gguf.ops import GGMLOps
 
 from nodes import (
     CLIPTextEncode,

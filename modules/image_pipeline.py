@@ -85,8 +85,10 @@ from modules.pipeline_utils import (
 )
 from modules.canny_utils import sanitize_canny_thresholds
 
-from comfyui_gguf.nodes import gguf_sd_loader as load_gguf_sd, DualCLIPLoaderGGUF, GGUFModelPatcher
-from comfyui_gguf.ops import GGMLOps
+#from comfyui_gguf.nodes import gguf_sd_loader as load_gguf_sd, DualCLIPLoaderGGUF, GGUFModelPatcher
+#from comfyui_gguf.ops import GGMLOps
+from molbal_comfyui_gguf.nodes import gguf_sd_loader as load_gguf_sd, DualCLIPLoaderGGUF, GGUFModelPatcher
+from molbal_comfyui_gguf.ops import GGMLOps
 #from calcuis_gguf.pig import load_gguf_sd, GGMLOps, GGUFModelPatcher
 #from calcuis_gguf.pig import DualClipLoaderGGUF as DualCLIPLoaderGGUF
 
@@ -417,8 +419,13 @@ class pipeline:
                             unet = comfy.sd.load_diffusion_model_state_dict(
                                 input_unet, model_options={"custom_operations": self.ggml_ops}
                             )
-                            unet = GGUFModelPatcher.clone(unet)
-                            unet.patch_on_device = True
+                            try:
+                                unet = GGUFModelPatcher.clone(unet)
+                                unet.patch_on_device = True
+                            except Exception as e:
+                                unet = input_unet
+                                print(f"ERROR: {e}")
+                                traceback.print_exc() 
                     else:
                         model_options = {}
                         model_options["dtype"] = torch.float8_e4m3fn # FIXME should be a setting
