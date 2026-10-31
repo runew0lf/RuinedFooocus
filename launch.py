@@ -194,11 +194,6 @@ def download_models():
 
     model_filenames = [
         (
-            path_manager.model_paths["vae_approx_path"],
-            "taesdxl_decoder",
-            "https://github.com/madebyollin/taesd/raw/main/taesdxl_decoder.pth",
-        ),
-        (
             "prompt_expansion",
             "pytorch_model.bin",
             "https://huggingface.co/lllyasviel/misc/resolve/main/fooocus_expansion.bin",
