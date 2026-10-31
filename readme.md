@@ -16,46 +16,15 @@ Don't waste another minute stuck in the past. The future is calling, and it's ti
 
 ### The future of art starts now!
 
-## Download
+## Installation
 
-### Windows
-
-You can directly download Fooocus with:
-
-**[>>> Click here to download <<<](https://github.com/runew0lf/RuinedFooocus/releases/download/Release-2.0.0/RuinedFooocus_main_2.0.0.win64.7z)**
-
-## NOTE YOU WILL NEED TO EXTRACT USING THE LATEST [7ZIP](https://www.7-zip.org/download.html)
-
-After you download the file, please uncompress it, and then run the "run.bat".
-
-![image](https://github.com/lllyasviel/Fooocus/assets/19834515/c49269c4-c274-4893-b368-047c401cc58c)
-
-In the first time you launch the software, it will automatically download models:
-
-1. It will download [sd_xl_base_1.0_0.9vae.safetensors from here](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors) as the file "Fooocus\models\checkpoints\sd_xl_base_1.0_0.9vae.safetensors".
-
-If you already have these files, you can copy them to the above locations to speed up installation.
-
-Note that if you see **"MetadataIncompleteBuffer"**, then your model files are corrupted. Please download models again.
-
-### Linux
-
-The command lines are
-
-    git clone https://github.com/runew0lf/RuinedFooocus.git
-    cd RuinedFooocus
-    virtualenv venv
-    source venv/bin/activate
-    pip install -r requirements_versions.txt
-
-Then download the models: download [sd_xl_base_1.0_0.9vae.safetensors from here](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors) as the file "Fooocus\models\checkpoints\sd_xl_base_1.0_0.9vae.safetensors", and download [sd_xl_refiner_1.0_0.9vae.safetensors from here](https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors) as the file "Fooocus\models\checkpoints\sd_xl_refiner_1.0_0.9vae.safetensors". **Or let Fooocus automatically download the models** using the launcher:
-
-    python launch.py
-
-Or if you want to open a remote port, use
-
-    python launch.py --listen
-
+1. Download [rf-setup.ps1](https://github.com/runew0lf/RuinedFooocus/releases/download/rf-setup/rf-setup.ps1) (Windows) or [rf-setup.sh](https://github.com/runew0lf/RuinedFooocus/releases/download/rf-setup/rf-setup.sh) (Linux) and save it in an empty new folder where you want to install RuinedFooocus.
+2. Run the script.
+3. In the menu, select python version.
+4. Install RuinedFoocus by selecting branch (you most likely want the "main" branch)
+5. Optional: Select Torch version. RuinedFooocus will try to automatically find a good version that fits your GPU, but AMD users might need to force a specific version.
+6. Optional (but recommended): Create a run.bat or run.sh script that will start RuinedFooocus
+7. Run run. :)
 
 ## Ruined Edition Features
 
