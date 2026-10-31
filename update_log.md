@@ -1,4 +1,4 @@
-### development
+### 26.10.31
 * [Fibo 2.0](https://huggingface.co/briaai/Fibo-2.0-dev) support
 * [Flux3](https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy) support
 * [MOSS Image](https://huggingface.co/OpenMOSS-Team/MOSS-Image-Base) support

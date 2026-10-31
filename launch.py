@@ -125,6 +125,13 @@ def prepare_environment(offline=False):
         if torch_platform == "cu124": torch_platform = "cu126"
         if torch_platform.startswith("cu"): packages = ["torch>=2.14.0", "torchaudio>=2.11.0", "torchvision>=0.29.0"]
 
+        # ...same for AMD gpus.
+        if torch_platform.startswith("rocm"): packages = [
+            f"torch[{torch_platform}]>=2.14.0",
+            f"torchaudio[{torch_platform}]>=2.11.0",
+            f"torchvision[{torch_platform}]>=0.29.0"
+        ]
+
         print(f"Torch platform: {os_platform}: {torch_platform}") # Some debug output
 
     if offline:
@@ -149,7 +156,7 @@ def prepare_environment(offline=False):
             run_pip(f'install -r "{modules_file}"', "required modules")
 
         try:
-            xlc_version = "xllamacpp==2026.7.9873"
+            xlc_version = "xllamacpp==2026.10.11870"
             if REINSTALL_ALL or not is_installed(xlc_version):
                 platform_index = {
                     'cu124': 'https://xorbitsai.github.io/xllamacpp/whl/vulkan',
@@ -222,7 +229,7 @@ if int(py_ver[0]) == 3 and int(py_ver[1]) <= 10:
     print("WARNING!                                       !WARNING!")
     print("WARNING!WARNING!WARNING!WARNING!WARNING!WARNING!WARNING!")
     print("")
-    time.sleep(5)
+    time.sleep(3)
     #input("Press enter to continue...")
 
 REINSTALL_ALL = False
