@@ -68,7 +68,10 @@ import re
 import traceback
 
 import version
+import logging
+logging.getLogger().setLevel(logging.ERROR)
 import modules.async_worker as worker
+logging.getLogger().setLevel(logging.WARNING)
 import modules.html
 import modules.hints
 import modules.ui.ui_onebutton as ui_onebutton

@@ -19,6 +19,7 @@ warnings.filterwarnings("ignore", category=FutureWarning, module="insightface")
 warnings.filterwarnings("ignore", category=FutureWarning, module="transformers")
 warnings.filterwarnings("ignore", category=FutureWarning, module="kornia")
 warnings.filterwarnings("ignore", category=FutureWarning, module="timm")
+warnings.filterwarnings("ignore", category=FutureWarning, module="torch")
 warnings.filterwarnings("ignore", category=UserWarning, module="torchvision")
 warnings.filterwarnings("ignore", category=UserWarning, module="gradio")
 warnings.filterwarnings("ignore", category=UserWarning, module="torchsde")
@@ -142,8 +143,9 @@ def prepare_environment(offline=False):
         # Run torchruntime install
         if not os.path.exists("freezetorch"):
             cmds = torchruntime.installer.get_install_commands(torch_platform, packages)
-            if REINSTALL_ALL or REINSTALL_TORCH:
-                for idx in range(len(cmds)):
+            for idx in range(len(cmds)):
+                cmds[idx].insert(0, "-q")
+                if REINSTALL_ALL or REINSTALL_TORCH:
                     cmds[idx].insert(0, "--force-reinstall")
             cmds = torchruntime.installer.get_pip_commands(cmds)
             torchruntime.installer.run_commands(cmds)
