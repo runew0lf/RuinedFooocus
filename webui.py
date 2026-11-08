@@ -3,7 +3,6 @@ import os
 
 from argparser import args
 import comfy.cli_args
-comfy.cli_args.args.cpu = args.cpu
 comfy.cli_args.args.highvram = args.highvram
 comfy.cli_args.args.normalvram = args.normalvram
 comfy.cli_args.args.lowvram = args.lowvram
@@ -32,6 +31,19 @@ comfy.cli_args.args.fp8_e5m2_text_enc = args.fp8_e5m2_text_enc
 comfy.cli_args.args.fp16_text_enc = args.fp16_text_enc
 comfy.cli_args.args.fp32_text_enc = args.fp32_text_enc
 comfy.cli_args.args.bf16_text_enc = args.bf16_text_enc
+
+import torch
+if torch.cuda.is_available():
+    device = "cuda"       # NVIDIA
+elif hasattr(torch, "xpu") and torch.xpu.is_available():
+    device = "xpu"        # Intel
+elif hasattr(torch, "hip") and torch.cuda.is_available():
+    device = "cuda"       # AMD ROCm
+else:
+    comfy.cli_args.args.cpu = args.cpu
+    device = "cpu"
+
+print("Using torch device:", device)
 
 from pathlib import Path
 import shared

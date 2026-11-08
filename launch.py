@@ -126,22 +126,23 @@ def prepare_environment(offline=False):
             run_pip(f'install -r "{modules_file}"', "required modules")
 
         try:
-            xlc_version = "xllamacpp==2026.9.11063"
+            xlc_version = "xllamacpp==2026.10.11870"
             if REINSTALL_ALL or not is_installed(xlc_version):
-                platform_index = {
-                    'cu124': 'https://xorbitsai.github.io/xllamacpp/whl/vulkan',
-                    'cu126': 'https://xorbitsai.github.io/xllamacpp/whl/vulkan',
-                    'cu128': 'https://xorbitsai.github.io/xllamacpp/whl/cu128',
-                    'cu130': 'https://xorbitsai.github.io/xllamacpp/whl/cu128',
-                    'cu132': 'https://xorbitsai.github.io/xllamacpp/whl/cu132',
-                    'rocm6.4': 'https://xorbitsai.github.io/xllamacpp/whl/rocm-6.4.1',
-                    'rocm7.2': 'https://xorbitsai.github.io/xllamacpp/whl/rocm-7.2.4',
-                    'cpu': 'https://pypi.org/simple',
-                    'vulkan': 'https://xorbitsai.github.io/xllamacpp/whl/vulkan'
-                }
-                if torch_platform not in platform_index:
-                    torch_platform = 'cpu'
-                index_url=platform_index[torch_platform]
+                #platform_index = {
+                #    'cu124': 'https://xorbitsai.github.io/xllamacpp/whl/vulkan',
+                #    'cu126': 'https://xorbitsai.github.io/xllamacpp/whl/vulkan',
+                #    'cu128': 'https://xorbitsai.github.io/xllamacpp/whl/cu128',
+                #    'cu130': 'https://xorbitsai.github.io/xllamacpp/whl/cu128',
+                #    'cu132': 'https://xorbitsai.github.io/xllamacpp/whl/cu132',
+                #    'rocm6.4': 'https://xorbitsai.github.io/xllamacpp/whl/rocm-6.4.1',
+                #    'rocm7.2': 'https://xorbitsai.github.io/xllamacpp/whl/rocm-7.2.4',
+                #    'cpu': 'https://pypi.org/simple',
+                #    'vulkan': 'https://xorbitsai.github.io/xllamacpp/whl/vulkan'
+                #}
+                #if torch_platform not in platform_index:
+                #    torch_platform = 'cpu'
+                #index_url=platform_index[torch_platform]
+                index_url = 'https://xorbitsai.github.io/xllamacpp/whl/vulkan'
                 run_pip(f'install {xlc_version} --index-url {index_url}', f"XLlamacpp from {index_url}")
         except Exception as e:
             print("WARNING: Failed to install/update llm modules.")
