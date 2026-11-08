@@ -2,5 +2,5 @@ wheel
 packaging
 pygit2
 setuptools==84.2.1
-torchruntime==2.25.0
+torchvisir==0.0.1
 cffi==2.0.0

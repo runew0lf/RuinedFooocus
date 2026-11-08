@@ -78,6 +78,8 @@ git_repos = [
 
 
 def prepare_environment(offline=False):
+    from torchvisir import Torchvisir
+
     print(f"Python {sys.version}")
     print(f"RuinedFooocus version: {version.version}")
 
@@ -107,34 +109,6 @@ def prepare_environment(offline=False):
             live=False,
         )
 
-
-        import torchruntime
-        import platform
-        gpus = torchruntime.device_db.get_gpus()
-        if "TORCH_PLATFORM" in os.environ:
-            torch_platform = os.environ["TORCH_PLATFORM"]
-        else:
-            torch_platform = torchruntime.platform_detection.get_torch_platform(gpus)
-        os_platform = platform.system()
-
-        # Some platform checks
-        torch_platform, os_platform = broken_torch_platforms(torch_platform, os_platform)
-
-        packages = []
-        # Ugly fix to get a more up-to-date torch for NVIDIA gpus
-        if torch_platform == "cu128": torch_platform = "cu130"
-        if torch_platform == "cu124": torch_platform = "cu126"
-        if torch_platform.startswith("cu"): packages = ["torch>=2.14.0", "torchaudio>=2.11.0", "torchvision>=0.29.0"]
-
-        # ...same for AMD gpus.
-        if torch_platform.startswith("rocm"): packages = [
-            f"torch[{torch_platform}]>=2.14.0",
-            f"torchaudio[{torch_platform}]>=2.11.0",
-            f"torchvision[{torch_platform}]>=0.29.0"
-        ]
-
-        print(f"Torch platform: {os_platform}: {torch_platform}") # Some debug output
-
     if offline:
         print("Skip check of required modules.")
     else:
@@ -142,14 +116,8 @@ def prepare_environment(offline=False):
 
         # Run torchruntime install
         if not os.path.exists("freezetorch"):
-            cmds = torchruntime.installer.get_install_commands(torch_platform, packages)
-            for idx in range(len(cmds)):
-                cmds[idx].insert(0, "-q")
-                if REINSTALL_ALL or REINSTALL_TORCH:
-                    cmds[idx].insert(0, "--force-reinstall")
-            cmds = torchruntime.installer.get_pip_commands(cmds)
-            torchruntime.installer.run_commands(cmds)
-            torchruntime.configure()
+            force = REINSTALL_ALL or REINSTALL_TORCH
+            Torchvisir().install_torch(quiet=False) # TODO add force argument
         else:
             print(f"Torch frozen...")
 
@@ -158,7 +126,7 @@ def prepare_environment(offline=False):
             run_pip(f'install -r "{modules_file}"', "required modules")
 
         try:
-            xlc_version = "xllamacpp==2026.10.11870"
+            xlc_version = "xllamacpp==2026.9.11063"
             if REINSTALL_ALL or not is_installed(xlc_version):
                 platform_index = {
                     'cu124': 'https://xorbitsai.github.io/xllamacpp/whl/vulkan',

@@ -1,16 +1,5 @@
-import torchruntime
 import platform
 import os
-from modules.shared_functions import broken_torch_platforms
-gpus = torchruntime.device_db.get_gpus()
-if "TORCH_PLATFORM" in os.environ:
-    torch_platform = os.environ["TORCH_PLATFORM"]
-else:
-    torch_platform = torchruntime.platform_detection.get_torch_platform(gpus)
-os_platform = platform.system()
-
-# Some platform checks
-torch_platform, os_platform = broken_torch_platforms(torch_platform, os_platform)
 
 from argparser import args
 import comfy.cli_args
@@ -43,13 +32,6 @@ comfy.cli_args.args.fp8_e5m2_text_enc = args.fp8_e5m2_text_enc
 comfy.cli_args.args.fp16_text_enc = args.fp16_text_enc
 comfy.cli_args.args.fp32_text_enc = args.fp32_text_enc
 comfy.cli_args.args.bf16_text_enc = args.bf16_text_enc
-
-if torch_platform == "cpu":
-    comfy.cli_args.args.cpu = True
-#if args.directml is not None:
-#    comfy.cli_args.args.directml = args.directml
-#elif torch_platform == "directml":
-#    comfy.cli_args.args.directml = -1
 
 from pathlib import Path
 import shared
