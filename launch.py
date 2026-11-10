@@ -117,7 +117,7 @@ def prepare_environment(offline=False):
         # Run torchruntime install
         if not os.path.exists("freezetorch"):
             force = REINSTALL_ALL or REINSTALL_TORCH
-            Torchvisir().install_torch(quiet=False) # TODO add force argument
+            Torchvisir().install_torch() # TODO add force argument
         else:
             print(f"Torch frozen...")
 
