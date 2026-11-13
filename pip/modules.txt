@@ -5,7 +5,7 @@ pyyaml==6.0.2
 tqdm==4.67.3
 psutil==6.1.0
 pytorch-lightning==2.6.6
-gradio[mcp]==6.31.0
+gradio[mcp]==6.32.0
 diffusers==0.41.0
 imageio-ffmpeg==0.5.1
 ftfy==6.1.1
@@ -38,3 +38,4 @@ charset_normalizer==3.4.7
 urllib3==2.8.0
 safetensors==0.8.0
 filelock==4.2.6
+pillow==13.0.0
