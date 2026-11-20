@@ -83,7 +83,7 @@ class pipeline:
         return gen_data
 
     def load_base_model(self):
-        localfile = settings.default_settings.get("llama_localfile", "Qwen2.5-7B-Instruct-abliterated-v2.Q4_K_M.gguf")
+        localfile = settings.default_settings.get("llama_localfile", "LFM3-1.7B-Q8_0.gguf")
         llm_path = path_manager.get_folder_file_path(
             "llm",
             localfile,
