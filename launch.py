@@ -78,8 +78,6 @@ git_repos = [
 
 
 def prepare_environment(offline=False):
-    from torchvisir import Torchvisir
-
     print(f"Python {sys.version}")
     print(f"RuinedFooocus version: {version.version}")
 
@@ -116,6 +114,8 @@ def prepare_environment(offline=False):
 
         # Run torchruntime install
         if not os.path.exists("freezetorch"):
+            from torchvisir import Torchvisir
+
             force = REINSTALL_ALL or REINSTALL_TORCH
             Torchvisir().install_torch() # TODO add force argument
         else:
